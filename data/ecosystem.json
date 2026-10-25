@@ -24,7 +24,13 @@
         "date": "10월 19일",
         "event": "업비트·빗썸 상장",
         "logo": "https://s2.coinmarketcap.com/static/img/coins/128x128/42253.png",
-        "url": "https://coinmarketcap.com/currencies/concrete/"
+        "url": "https://coinmarketcap.com/currencies/concrete/",
+        "exchanges": [
+          "업비트",
+          "빗썸"
+        ],
+        "market": "원화마켓",
+        "day": "10.19"
       },
       {
         "name": "Metaplex",
@@ -32,7 +38,12 @@
         "date": "10월 20일",
         "event": "업비트 원화마켓 상장",
         "logo": "https://s2.coinmarketcap.com/static/img/coins/128x128/21870.png",
-        "url": "https://coinmarketcap.com/currencies/metaplex/"
+        "url": "https://coinmarketcap.com/currencies/metaplex/",
+        "exchanges": [
+          "업비트"
+        ],
+        "market": "원화마켓",
+        "day": "10.20"
       },
       {
         "name": "Axis Robotics",
@@ -40,15 +51,40 @@
         "date": "10월 21일",
         "event": "업비트 상장",
         "logo": "https://s2.coinmarketcap.com/static/img/coins/128x128/42525.png",
-        "url": "https://coinmarketcap.com/currencies/axis-robotics/"
+        "url": "https://coinmarketcap.com/currencies/axis-robotics/",
+        "exchanges": [
+          "업비트"
+        ],
+        "market": "",
+        "day": "10.21"
       }
     ]
   },
   "vcs": [
-    { "name": "Hack VC", "url": "https://www.hack.vc/", "domain": "hack.vc" },
-    { "name": "YZi Labs", "url": "https://www.yzilabs.com/", "domain": "yzilabs.com" },
-    { "name": "Multicoin Capital", "url": "https://multicoin.capital/", "domain": "multicoin.capital" },
-    { "name": "Dragonfly", "url": "https://dragonfly.com/", "domain": "dragonfly.com" },
-    { "name": "Coinbase Ventures", "url": "https://www.coinbase.com/ventures", "domain": "coinbase.com" }
+    {
+      "name": "Hack VC",
+      "url": "https://www.hack.vc/",
+      "domain": "hack.vc"
+    },
+    {
+      "name": "YZi Labs",
+      "url": "https://www.yzilabs.com/",
+      "domain": "yzilabs.com"
+    },
+    {
+      "name": "Multicoin Capital",
+      "url": "https://multicoin.capital/",
+      "domain": "multicoin.capital"
+    },
+    {
+      "name": "Dragonfly",
+      "url": "https://dragonfly.com/",
+      "domain": "dragonfly.com"
+    },
+    {
+      "name": "Coinbase Ventures",
+      "url": "https://www.coinbase.com/ventures",
+      "domain": "coinbase.com"
+    }
   ]
 }

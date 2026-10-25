@@ -293,28 +293,42 @@ function home() {
   </div>
 </section>`;
 
+  const mw = ECO.marketWatch;
   const eco = `<section id="ecosystem" class="sec" aria-labelledby="eco-title">
   <div class="wrap">
     <div class="sec-head">
       <h2 id="eco-title" class="sec-title">프로젝트와 글로벌 Web3 생태계</h2>
       <p class="fine">${esc(ECO.note)}</p>
     </div>
-    <div class="eco-grid">
-      <div class="eco-col eco-wide">
-        <h3>${esc(ECO.marketWatch.title)}</h3>
-        <ul class="eco-list">
-          ${ECO.marketWatch.items.map((p) => `<li><a href="${esc(p.url)}" target="_blank" rel="noopener"><img src="${esc(p.logo)}" alt="" width="28" height="28" loading="lazy"><span class="eco-n">${esc(p.name)} <small>${esc(p.symbol)}</small></span><span class="eco-d">${esc(p.date)} · ${esc(p.event)}</span></a></li>`).join("")}
+
+    <div class="eco-block">
+      <h3 class="eco-h">${esc(mw.title)}</h3>
+      <ol class="listings">
+        ${mw.items.map((p) => `<li><a class="lst" href="${esc(p.url)}" target="_blank" rel="noopener">
+          <span class="lst-day">${esc(p.day || p.date)}</span>
+          <img class="lst-logo" src="${esc(p.logo)}" alt="" width="56" height="56" loading="lazy">
+          <span class="lst-name">${esc(p.name)}<small>${esc(p.symbol)}</small></span>
+          <span class="lst-ex">${(p.exchanges || []).map((e) => `<span class="ex-chip ex-${e === "업비트" ? "upbit" : e === "빗썸" ? "bithumb" : "etc"}">${esc(e)}</span>`).join("")}${p.market ? `<span class="lst-mkt">${esc(p.market)}</span>` : ""}</span>
+          <span class="lst-go">CoinMarketCap에서 보기</span>
+        </a></li>`).join("")}
+      </ol>
+      <p class="fine">${esc(mw.note)}</p>
+    </div>
+
+    <div class="eco-two">
+      <div class="eco-block">
+        <h3 class="eco-h">관심 프로젝트</h3>
+        <ul class="projects">
+          ${ECO.featured.map((p) => `<li><a class="prj" href="${esc(p.url)}" target="_blank" rel="noopener">
+            <img src="${esc(p.logo)}" alt="" width="48" height="48" loading="lazy">
+            <span><strong>${esc(p.name)}</strong><small>${esc(p.symbol)}</small></span>
+          </a></li>`).join("")}
         </ul>
-        <p class="fine">${esc(ECO.marketWatch.note)}</p>
       </div>
-      <div class="eco-col">
-        <h3>관심 프로젝트</h3>
-        <ul class="eco-list">
-          ${ECO.featured.map((p) => `<li><a href="${esc(p.url)}" target="_blank" rel="noopener"><img src="${esc(p.logo)}" alt="" width="28" height="28" loading="lazy"><span class="eco-n">${esc(p.name)} <small>${esc(p.symbol)}</small></span></a></li>`).join("")}
-        </ul>
-        <h3 class="eco-h2">글로벌 크립토 VC</h3>
-        <ul class="eco-vc">
-          ${ECO.vcs.map((v) => `<li><a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.name)}</a></li>`).join("")}
+      <div class="eco-block">
+        <h3 class="eco-h">글로벌 크립토 VC</h3>
+        <ul class="vcs">
+          ${ECO.vcs.map((v) => `<li><a class="vc" href="${esc(v.url)}" target="_blank" rel="noopener"><img src="https://www.google.com/s2/favicons?domain=${esc(v.domain)}&amp;sz=128" alt="" width="32" height="32" loading="lazy"><span>${esc(v.name)}</span></a></li>`).join("")}
         </ul>
       </div>
     </div>

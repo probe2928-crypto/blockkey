@@ -531,7 +531,7 @@ function home() {
   };
   const faqLd = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: h.faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) };
 
-  return layout({ path: "", body: hero + statement + services + useCases + process + why + eco + ad("home") + faq + contact, bodyClass: "home", jsonld: [jsonld, faqLd] });
+  return layout({ path: "", body: hero + statement + services + useCases + process + ad("home") + why + eco + faq + contact, bodyClass: "home", jsonld: [jsonld, faqLd] });
 }
 
 /* ---------- 시장 데이터 ---------- */

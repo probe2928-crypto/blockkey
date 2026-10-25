@@ -57,6 +57,8 @@ const TG = (SITE.contact.telegram || "").replace(/^@/, "");
 const ROMAN = ["I", "II", "III", "IV", "V", "VI"];
 
 // 히어로 오브제: 알루미늄 덩어리에 열쇠 구멍 겸 스피커 유닛 같은 동심원. 페이지의 유일한 장식.
+// 엠블럼: 알루미늄 링 + 샴페인 골드 실린더 + 열쇠 구멍. 헤더·푸터·인트로 공용
+const EMBLEM = (cls = "emblem") => `<svg class="${cls}" viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="em-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ecdcb8"/><stop offset="1" stop-color="#9c7b44"/></linearGradient></defs><circle cx="20" cy="20" r="18.4" fill="none" stroke="currentColor" stroke-width="1.1" opacity=".75"/><circle cx="20" cy="20" r="13.6" fill="none" stroke="currentColor" stroke-width=".6" opacity=".35"/><circle cx="20" cy="20" r="8.6" fill="url(#em-g)"/><circle cx="20" cy="17.6" r="2.3" fill="#1a1408"/><rect x="18.9" y="18" width="2.2" height="7" rx="1.1" fill="#1a1408"/></svg>`;
 const OBJ_LABEL = "__OBJ__";
 const OBJECT_SRC = `<svg class="obj" viewBox="0 0 520 620" role="img" aria-label="${OBJ_LABEL}">
   <defs>
@@ -139,13 +141,15 @@ ${p === "404.html" ? "" : LANGS.map((l) => `<link rel="alternate" hreflang="${l}
 ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld)}</script>` : ""}
 ${ga ? `<script async src="https://www.googletagmanager.com/gtag/js?id=${esc(ga)}"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${esc(ga)}');</script>` : ""}
 <script>window.BK=${JSON.stringify(cfg)}</script>
+${bodyClass === "home" ? `<script>try{if(!sessionStorage.getItem("bk-intro")&&!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("intro-on")}catch(e){}</script>` : ""}
 <script src="${ua("app.js")}?v=${BUILD_ID}" defer></script>
 </head>
 <body class="${bodyClass}">
+${bodyClass === "home" ? `<div class="intro" aria-hidden="true"><div class="intro-in">${EMBLEM("intro-em")}<p class="intro-word">${"BLOCKKEY".split("").map((c, i) => `<span style="--i:${i}">${c}</span>`).join("")}</p><p class="intro-sign">L'art de relier.</p></div></div>` : ""}
 <a class="skip" href="#main">${L.skip}</a>
 <header class="top">
   <div class="wrap top-in">
-    <a class="brand" href="${u("")}" aria-label="${esc(SITE.nameFull)} ${L.home}">BLOCKKEY</a>
+    <a class="brand" href="${u("")}" aria-label="${esc(SITE.nameFull)} ${L.home}">${EMBLEM()}<span>BLOCKKEY</span></a>
     <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav"><span class="menu-lines" aria-hidden="true"></span><span class="menu-txt">${L.menu}</span></button>
     <nav id="nav" class="nav" aria-label="${L.mainNav}">
       ${NAV().map(([t, h]) => `<a href="${navHref(h)}">${t}</a>`).join("")}
@@ -176,7 +180,7 @@ function footer() {
     <p class="foot-word" aria-hidden="true">BLOCKKEY</p>
     <div class="foot-grid">
       <div class="foot-brand">
-        <p class="foot-sign">L'art de relier.</p>
+        <p class="foot-sign">${EMBLEM("foot-em")}<span>L'art de relier.</span></p>
         <p>${L.footAbout}</p>
         ${reach.length ? `<p class="foot-reach">${reach.join("")}</p>` : ""}
       </div>
@@ -283,7 +287,7 @@ function heroSlides(h) {
         <ul class="scene-points">${s.points.map((p) => `<li>${esc(p)}</li>`).join("")}</ul>
         <div class="actions"><a class="btn btn-light" href="${esc(s.href)}">${esc(s.cta)}</a></div>
       </div>
-      <div class="slide-art">${art}</div>
+      <div class="slide-art" data-tilt>${art}<span class="glare" aria-hidden="true"></span></div>
     </div>
   </article>`;
   const main = `<article class="slide s-bk s-main is-active" data-name="BLOCKKEY" aria-roledescription="slide">
@@ -298,7 +302,7 @@ function heroSlides(h) {
           <a class="link-under" href="#services">${esc(h.hero.secondary)}</a>
         </div>
       </div>
-      <div class="slide-art hero-obj">${OBJECT_SRC.replace("__OBJ__", esc(L.objLabel))}</div>
+      <div class="slide-art hero-obj" data-tilt>${OBJECT_SRC.replace("__OBJ__", esc(L.objLabel))}<span class="glare" aria-hidden="true"></span></div>
     </div>
   </article>`;
   const partnerScene = (a) => {

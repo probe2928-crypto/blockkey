@@ -41,6 +41,49 @@
   // 현재 페이지 메뉴 표시
   $$(".nav a").forEach((a) => { if (a.pathname !== BK.base && location.pathname.startsWith(a.pathname) && !a.hash) a.setAttribute("aria-current", "page"); });
 
+  /* ---------- 첫 방문 인트로 ---------- */
+  if (document.documentElement.classList.contains("intro-on")) {
+    try { sessionStorage.setItem("bk-intro", "1"); } catch {}
+    // 인트로 동안 첫 화면 슬라이드는 멈춰 있다가, 장막이 걷히면 첫 장면을 다시 등장시킴
+    const h0 = $("[data-hero]");
+    h0?.classList.add("is-paused");
+    let done = false;
+    const finish = () => {
+      if (done) return; done = true;
+      document.documentElement.classList.add("intro-done");
+      h0?.classList.remove("is-paused");
+      const s = $(".slide.is-active", h0 || document);
+      if (s) { s.classList.add("is-enter"); setTimeout(() => s.classList.remove("is-enter"), 2600); }
+    };
+    setTimeout(finish, 3100);
+    $(".intro")?.addEventListener("click", finish);
+  }
+
+  /* ---------- 헤더 스크롤 진행선 ---------- */
+  const top = $(".top");
+  if (top) {
+    let tick = false;
+    const upd = () => { const h = document.documentElement.scrollHeight - innerHeight; top.style.setProperty("--progress", h > 0 ? Math.min(1, scrollY / h).toFixed(4) : 0); tick = false; };
+    addEventListener("scroll", () => { if (!tick) { tick = true; requestAnimationFrame(upd); } }, { passive: true });
+    upd();
+  }
+
+  /* ---------- 히어로 아트 기울기·빛 ---------- */
+  if (matchMedia("(pointer: fine)").matches && !reduceMotion) {
+    const heroEl = $("[data-hero]");
+    heroEl?.addEventListener("pointermove", (e) => {
+      const art = $(".slide.is-active [data-tilt]", heroEl);
+      if (!art) return;
+      const b = art.getBoundingClientRect();
+      const x = (e.clientX - b.left) / b.width, y = (e.clientY - b.top) / b.height;
+      art.style.setProperty("--rx", ((x - .5) * 10).toFixed(2));
+      art.style.setProperty("--ry", ((.5 - y) * 8).toFixed(2));
+      art.style.setProperty("--gx", (x * 100).toFixed(1) + "%");
+      art.style.setProperty("--gy", (y * 100).toFixed(1) + "%");
+    });
+    heroEl?.addEventListener("pointerleave", () => $$("[data-tilt]", heroEl).forEach((a) => { a.style.setProperty("--rx", 0); a.style.setProperty("--ry", 0); }));
+  }
+
   /* ---------- 첫 화면 장면 슬라이드 ---------- */
   const hero = $("[data-hero]");
   if (hero && $$(".slide", hero).length > 1) {

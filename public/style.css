@@ -62,7 +62,12 @@ strong, b { font-weight: 500; }
 /* ---------- 헤더 ---------- */
 .top { position: sticky; top: 0; z-index: 50; background: rgba(0, 0, 0, .92); backdrop-filter: blur(12px); color: #fff; border-bottom: 1px solid var(--night-line); }
 .top-in { display: flex; align-items: center; justify-content: space-between; height: 76px; }
-.brand { font: 400 18px/1 var(--mark); letter-spacing: .32em; text-decoration: none; padding-left: .32em; margin-left: -.32em; }
+.brand { display: inline-flex; align-items: center; gap: 14px; font: 400 18px/1 var(--mark); letter-spacing: .32em; text-decoration: none; }
+.brand span { margin-right: -.32em; }
+.emblem { width: 26px; height: 26px; color: var(--alu); flex: none; transition: transform 1.2s cubic-bezier(.2, .7, .1, 1); }
+.brand:hover .emblem { transform: rotate(90deg); }
+/* 스크롤 진행선 */
+.top::after { content: ""; position: absolute; left: 0; bottom: -1px; height: 1px; width: calc(var(--progress, 0) * 100%); background: linear-gradient(90deg, transparent, var(--champ-hi)); }
 .nav { display: flex; gap: 36px; }
 .nav a { font-size: 14px; letter-spacing: .06em; color: var(--alu); text-decoration: none; padding: 6px 0; position: relative; }
 .nav a::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--champ-hi); transform: scaleX(0); transform-origin: left; transition: transform .3s; }
@@ -242,6 +247,27 @@ html[lang="en"] .statement-text { font-size: clamp(2rem, 4.2vw, 3.9rem); }
 .slide-nav .i-play { display: none; fill: currentColor; stroke: none; }
 .hero.is-paused .slide-nav .i-pause { display: none; }
 .hero.is-paused .slide-nav .i-play { display: block; }
+
+/* 첫 방문 인트로: 엠블럼과 워드마크가 놓인 뒤 장막이 위로 걷힘 (세션당 1회) */
+.intro { display: none; }
+.intro-on .intro { display: grid; place-items: center; position: fixed; inset: 0; z-index: 100; background: radial-gradient(ellipse 60% 60% at 50% 50%, #1b1b1b, #000 70%); color: #fff; animation: curtain 1s cubic-bezier(.77, 0, .18, 1) 2.1s both; }
+.intro-on:not(.intro-done) body { overflow: hidden; }
+.intro-done .intro { display: none; }
+.intro-in { display: grid; justify-items: center; gap: 22px; }
+.intro-em { width: 64px; height: 64px; color: var(--alu); animation: em-in 1.4s cubic-bezier(.2, .7, .1, 1) both; }
+.intro-word { font: 400 clamp(1.6rem, 4vw, 2.6rem)/1 var(--mark); letter-spacing: .42em; margin-right: -.42em; }
+.intro-word span { display: inline-block; animation: word-in 1s cubic-bezier(.2, .7, .1, 1) both; animation-delay: calc(.35s + var(--i) * .07s); }
+.intro-sign { font: italic 300 20px var(--fr); color: var(--champ-hi); animation: rise 1s ease 1.1s both; }
+@keyframes curtain { to { clip-path: inset(0 0 100% 0); } }
+@keyframes em-in { from { opacity: 0; transform: rotate(-90deg) scale(.8); } to { opacity: 1; transform: none; } }
+@keyframes word-in { from { opacity: 0; transform: translateY(.4em); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+
+/* 히어로 아트: 마우스 위치에 따라 살짝 기울고 빛이 따라옴 (정밀 포인터에서만) */
+[data-tilt] { position: relative; }
+[data-tilt] > svg { transition: transform .9s cubic-bezier(.2, .7, .1, 1); transform: perspective(1000px) rotateY(calc(var(--rx, 0) * 1deg)) rotateX(calc(var(--ry, 0) * 1deg)); }
+.glare { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .6s; background: radial-gradient(circle at var(--gx, 50%) var(--gy, 40%), rgba(255, 255, 255, .16), transparent 42%); mix-blend-mode: screen; }
+.hero:hover .glare { opacity: 1; }
+@media (hover: none) { .glare { display: none; } }
 
 /* ---------- 선언문 ---------- */
 .statement { padding: 160px 0 140px; }
@@ -526,7 +552,8 @@ legend { font-size: 13.5px; letter-spacing: .03em; color: var(--muted); margin-b
 .foot { background: var(--black); color: var(--alu-dim); padding: 120px 0 48px; font-size: 14.5px; overflow: hidden; }
 .foot-word { font: 400 clamp(3.2rem, 13.5vw, 12.5rem)/.9 var(--mark); letter-spacing: .08em; color: #1d1d1d; margin: 0 0 88px -.04em; white-space: nowrap; }
 .foot-grid { display: grid; grid-template-columns: 1.8fr 1fr 1fr 1fr; gap: 48px; padding-bottom: 64px; border-bottom: 1px solid var(--night-line); }
-.foot-sign { font: italic 300 24px/1.2 var(--fr); color: var(--champ-hi); margin-bottom: 18px; }
+.foot-sign { display: flex; align-items: center; gap: 14px; font: italic 300 24px/1.2 var(--fr); color: var(--champ-hi); margin-bottom: 18px; }
+.foot-em { width: 34px; height: 34px; color: var(--alu); }
 .foot-brand p:not(.foot-sign) { max-width: 26em; line-height: 1.8; }
 .foot-reach { display: flex; flex-wrap: wrap; gap: 10px 26px; margin-top: 22px; }
 .foot-reach a { color: #fff; }

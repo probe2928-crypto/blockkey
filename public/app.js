@@ -46,7 +46,7 @@
   if (hero && $$(".slide", hero).length > 1) {
     const slides = $$(".slide", hero), tabs = $$("[data-go]", hero);
     let cur = 0, userPaused = false, busy = false;
-    const toneOf = (s) => (s.classList.contains("s-bk") ? "dark" : "light");
+    const toneOf = (s) => (s.classList.contains("is-light") ? "light" : "dark"); // 밝은 배경 장면엔 is-light
     hero.dataset.tone = toneOf(slides[0]);
     hero.style.setProperty("--dur", "7.5s");
 

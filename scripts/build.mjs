@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { markdown, frontmatter, esc } from "./lib.mjs";
+import { T as I18N, LANGS, LANG_LABEL, LANG_NAME } from "./i18n.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = path.join(ROOT, "dist");
@@ -10,27 +11,35 @@ const read = (p) => fs.readFileSync(path.join(ROOT, p), "utf8");
 const json = (p) => JSON.parse(read(p));
 
 const SITE = json("site.config.json");
-const HOME = json("data/home.json");
 const ECO = json("data/ecosystem.json");
 const MKT = json("data/markets.json");
 const ADS = json("data/ads.json");
+// 언어별 상태: 빌드 루프가 언어마다 바꿔 끼운다
+let LANG = "ko", L = I18N.ko, HOME = json("data/home.json"), insights = [];
+const tr = (o, k) => (LANG !== "ko" && o && o[`${k}_${LANG}`] != null ? o[`${k}_${LANG}`] : o?.[k]);
+const prefix = (lang = LANG) => (lang === "ko" ? "" : `${lang}/`);
 
 // 커스텀 도메인이면 "/", GitHub Pages 기본 주소면 "/blockkey/"
 const BASE = (process.env.BASE_PATH || "/").replace(/\/+$/, "") + "/";
 const ORIGIN = SITE.domain ? `https://${SITE.domain}` : (process.env.SITE_URL || "").replace(/\/+$/, "");
-const u = (p = "") => BASE + String(p).replace(/^\/+/, "");
-const abs = (p = "") => (ORIGIN ? ORIGIN + u(p) : u(p));
+const u = (p = "", lang = LANG) => BASE + prefix(lang) + String(p).replace(/^\/+/, "");
+const ua = (p = "") => BASE + String(p).replace(/^\/+/, ""); // 공용 파일(css, js, 이미지)
+const abs = (p = "", lang = LANG) => (ORIGIN ? ORIGIN + u(p, lang) : u(p, lang));
 const BUILD_ID = Date.now().toString(36);
 
 /* ---------- 글 ---------- */
-const insights = fs.readdirSync(path.join(ROOT, "content/insights"))
-  .filter((f) => f.endsWith(".md"))
-  .map((f) => {
-    const { data, body } = frontmatter(read(`content/insights/${f}`));
-    return { slug: f.replace(/\.md$/, ""), ...data, date: String(data.date || ""), html: fixLinks(markdown(body)) };
-  })
-  .filter((p) => !p.draft)
-  .sort((a, b) => b.date.localeCompare(a.date));
+function loadInsights(lang) {
+  const dir = lang === "ko" ? "content/insights" : `content/insights/${lang}`;
+  if (!fs.existsSync(path.join(ROOT, dir))) return [];
+  return fs.readdirSync(path.join(ROOT, dir))
+    .filter((f) => f.endsWith(".md"))
+    .map((f) => {
+      const { data, body } = frontmatter(read(`${dir}/${f}`));
+      return { slug: f.replace(/\.md$/, ""), ...data, date: String(data.date || ""), html: fixLinks(markdown(body)) };
+    })
+    .filter((p) => !p.draft)
+    .sort((a, b) => b.date.localeCompare(a.date));
+}
 
 // 마크다운 안의 "/markets/" 같은 사이트 내부 링크에 BASE 붙이기
 function fixLinks(html) {
@@ -38,23 +47,18 @@ function fixLinks(html) {
 }
 const fmtDate = (d) => {
   const m = String(d).match(/^(\d{4})-(\d{2})-(\d{2})/);
-  return m ? `${m[1]}. ${+m[2]}. ${+m[3]}.` : d;
+  return m ? L.fmtDate(+m[1], +m[2], +m[3]) : d;
 };
 
 /* ---------- 공통 레이아웃 ---------- */
-const NAV = [
-  ["서비스", "#services"],
-  ["진행 방식", "#process"],
-  ["시장 데이터", "markets/"],
-  ["인사이트", "insights/"],
-  ["문의", "#contact"],
-];
+const NAV = () => L.nav;
 const navHref = (h) => (h.startsWith("#") ? u("") + h : u(h));
 const TG = (SITE.contact.telegram || "").replace(/^@/, "");
 const ROMAN = ["I", "II", "III", "IV", "V", "VI"];
 
 // 히어로 오브제: 알루미늄 덩어리에 열쇠 구멍 겸 스피커 유닛 같은 동심원. 페이지의 유일한 장식.
-const OBJECT = `<svg class="obj" viewBox="0 0 520 620" role="img" aria-label="BLOCKKEY 오브제: 알루미늄 블록에 새긴 열쇠 실린더">
+const OBJ_LABEL = "__OBJ__";
+const OBJECT_SRC = `<svg class="obj" viewBox="0 0 520 620" role="img" aria-label="${OBJ_LABEL}">
   <defs>
     <linearGradient id="alu" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#e9e9e7"/><stop offset=".38" stop-color="#b9babb"/><stop offset=".62" stop-color="#8d8e90"/><stop offset="1" stop-color="#4a4b4d"/>
@@ -97,17 +101,19 @@ const OBJECT = `<svg class="obj" viewBox="0 0 520 620" role="img" aria-label="BL
   <line x1="236" y1="500" x2="284" y2="500" stroke="url(#champ)" stroke-width="1.2"/>
 </svg>`;
 
-function layout({ title, description = SITE.description, path: p = "", body, bodyClass = "", jsonld }) {
-  const fullTitle = title ? `${title} | ${SITE.name}` : SITE.title;
+function layout({ title, description = L.description, path: p = "", body, bodyClass = "", jsonld }) {
+  const fullTitle = title ? `${title} | ${SITE.name}` : L.title;
   const canonical = abs(p);
   const ga = SITE.analytics?.ga4;
   const cfg = {
     base: BASE,
     contact: { email: SITE.contact.email, web3formsKey: SITE.contact.web3formsKey, formspreeId: SITE.contact.formspreeId, telegram: TG },
-    coins: MKT.coins,
+    lang: LANG,
+    t: L.js,
+    coins: MKT.coins.map((c) => ({ ...c, name: tr(c, "name") })),
   };
   return `<!doctype html>
-<html lang="${SITE.lang}">
+<html lang="${L.htmlLang}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -119,30 +125,32 @@ function layout({ title, description = SITE.description, path: p = "", body, bod
 <meta property="og:title" content="${esc(fullTitle)}">
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:url" content="${esc(canonical)}">
-<meta property="og:image" content="${esc(abs("og.png"))}">
-<meta property="og:locale" content="ko_KR">
+<meta property="og:image" content="${esc((ORIGIN || "") + ua("og.png"))}">
+<meta property="og:locale" content="${L.ogLocale}">
+${p === "404.html" ? "" : LANGS.map((l) => `<link rel="alternate" hreflang="${l}" href="${esc(abs(p, l))}">`).join("\n") + `\n<link rel="alternate" hreflang="x-default" href="${esc(abs(p, "ko"))}">`}
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#000000">
-<link rel="icon" href="${u("icons/icon.svg")}" type="image/svg+xml">
-<link rel="apple-touch-icon" href="${u("icons/apple-touch-icon.png")}">
+<link rel="icon" href="${ua("icons/icon.svg")}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="${ua("icons/apple-touch-icon.png")}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400&family=Cormorant+Garamond:ital,wght@1,300;1,400&family=DM+Serif+Display:ital@0;1&family=Hahmlet:wght@200;300;400&family=Marcellus&family=Noto+Sans+KR:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="${u("style.css")}?v=${BUILD_ID}">
+<link rel="stylesheet" href="${ua("style.css")}?v=${BUILD_ID}">
 ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld)}</script>` : ""}
 ${ga ? `<script async src="https://www.googletagmanager.com/gtag/js?id=${esc(ga)}"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${esc(ga)}');</script>` : ""}
 <script>window.BK=${JSON.stringify(cfg)}</script>
-<script src="${u("app.js")}?v=${BUILD_ID}" defer></script>
+<script src="${ua("app.js")}?v=${BUILD_ID}" defer></script>
 </head>
 <body class="${bodyClass}">
-<a class="skip" href="#main">본문으로 건너뛰기</a>
+<a class="skip" href="#main">${L.skip}</a>
 <header class="top">
   <div class="wrap top-in">
-    <a class="brand" href="${u("")}" aria-label="${esc(SITE.nameFull)} 홈">BLOCKKEY</a>
-    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav"><span class="menu-lines" aria-hidden="true"></span><span class="menu-txt">메뉴</span></button>
-    <nav id="nav" class="nav" aria-label="주요 메뉴">
-      ${NAV.map(([t, h]) => `<a href="${navHref(h)}">${t}</a>`).join("")}
+    <a class="brand" href="${u("")}" aria-label="${esc(SITE.nameFull)} ${L.home}">BLOCKKEY</a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav"><span class="menu-lines" aria-hidden="true"></span><span class="menu-txt">${L.menu}</span></button>
+    <nav id="nav" class="nav" aria-label="${L.mainNav}">
+      ${NAV().map(([t, h]) => `<a href="${navHref(h)}">${t}</a>`).join("")}
     </nav>
+    <div class="lang" role="group" aria-label="${L.langPick}">${LANGS.map((l) => `<a href="${esc(p === "404.html" ? u("", l) : u(p, l))}" hreflang="${l}" lang="${l}"${l === LANG ? ' aria-current="true"' : ""} title="${LANG_NAME[l]}">${LANG_LABEL[l]}</a>`).join("")}</div>
   </div>
 </header>
 <main id="main">
@@ -155,13 +163,13 @@ ${footer()}
 
 function footer() {
   const f = SITE.footer || {};
-  const biz = [f.company && `상호 ${esc(f.company)}`, f.ceo && `대표 ${esc(f.ceo)}`, f.registration && `사업자등록번호 ${esc(f.registration)}`, f.address && esc(f.address)].filter(Boolean);
+  const biz = [f.company && `${L.bizCompany} ${esc(f.company)}`, f.ceo && `${L.bizCeo} ${esc(f.ceo)}`, f.registration && `${L.bizReg} ${esc(f.registration)}`, f.address && esc(f.address)].filter(Boolean);
   const c = SITE.contact || {};
   const reach = [
     TG && `<a href="https://t.me/${esc(TG)}" target="_blank" rel="noopener">Telegram @${esc(TG)}</a>`,
     c.email && `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`,
-    c.kakao && `<a href="${esc(c.kakao)}" target="_blank" rel="noopener">카카오톡 상담</a>`,
-    c.community && `<a href="${esc(c.community)}" target="_blank" rel="noopener">${esc(c.communityLabel || "커뮤니티")}</a>`,
+    c.kakao && `<a href="${esc(c.kakao)}" target="_blank" rel="noopener">${L.kakao}</a>`,
+    c.community && `<a href="${esc(c.community)}" target="_blank" rel="noopener">${esc(LANG === "ko" ? c.communityLabel || L.community : L.community)}</a>`,
   ].filter(Boolean);
   return `<footer class="foot">
   <div class="wrap">
@@ -169,17 +177,17 @@ function footer() {
     <div class="foot-grid">
       <div class="foot-brand">
         <p class="foot-sign">L'art de relier.</p>
-        <p>AI 마케팅, AI 개발, 블록체인 연동·관리를 한 팀에서. 기획부터 운영까지 이어서 책임지는 기술 파트너입니다.</p>
+        <p>${L.footAbout}</p>
         ${reach.length ? `<p class="foot-reach">${reach.join("")}</p>` : ""}
       </div>
-      <nav aria-label="서비스"><h2>서비스</h2>${HOME.services.items.map((s) => `<a href="${u("")}#${s.id}">${esc(s.name)}</a>`).join("")}</nav>
-      <nav aria-label="회사"><h2>회사</h2><a href="${u("")}#process">진행 방식</a><a href="${u("")}#why">일하는 방식</a><a href="${u("")}#faq">자주 묻는 질문</a></nav>
-      <nav aria-label="자료"><h2>자료</h2><a href="${u("markets/")}">시장 데이터</a><a href="${u("insights/")}">인사이트</a><a href="${u("")}#contact">상담 신청</a></nav>
+      <nav aria-label="${L.footServices}"><h2>${L.footServices}</h2>${HOME.services.items.map((s) => `<a href="${u("")}#${s.id}">${esc(s.name)}</a>`).join("")}</nav>
+      <nav aria-label="${L.footCompany}"><h2>${L.footCompany}</h2><a href="${u("")}#process">${L.footProcess}</a><a href="${u("")}#why">${L.footWhy}</a><a href="${u("")}#faq">${L.footFaq}</a></nav>
+      <nav aria-label="${L.footResources}"><h2>${L.footResources}</h2><a href="${u("markets/")}">${L.footMarkets}</a><a href="${u("insights/")}">${L.footInsights}</a><a href="${u("")}#contact">${L.footContact}</a></nav>
     </div>
     <div class="foot-legal">
       ${biz.length ? `<p>${biz.join("<span aria-hidden=\"true\"> | </span>")}</p>` : ""}
-      <p>사이트의 시장 데이터와 프로젝트 정보는 참고용이며 투자 권유가 아닙니다.</p>
-      <p class="foot-row"><span>© ${new Date().getFullYear()} ${esc(SITE.name)}</span><a href="${u("privacy/")}">개인정보처리방침</a><a href="${u("terms/")}">이용약관</a></p>
+      <p>${L.footDisclaimer}</p>
+      <p class="foot-row"><span>© ${new Date().getFullYear()} ${esc(SITE.name)}</span><a href="${u("privacy/")}">${L.privacy}</a><a href="${u("terms/")}">${L.terms}</a></p>
     </div>
   </div>
 </footer>`;
@@ -191,26 +199,26 @@ const adsFor = (place) => ADS.items.filter((a) => a.enabled && a.placements.incl
 // 브랜드별 배너 카드: 체인브리프는 디도니 마스트헤드, 퍼프라인은 메종 광고 문법
 function adCard(a, size = "") {
   const head = a.kind === "chainbrief"
-    ? `<span class="pc-mast" aria-hidden="true">${esc(a.brand)}</span><span class="pc-rule" aria-hidden="true"></span><span class="pc-tag">${esc(a.tagline || "")}</span>`
+    ? `<span class="pc-mast" aria-hidden="true">${esc(a.brand)}</span><span class="pc-rule" aria-hidden="true"></span><span class="pc-tag">${esc(tr(a, "tagline") || "")}</span>`
     : a.kind === "perpline"
       ? `<span class="pc-word" aria-hidden="true">${esc(a.brand)}</span><span class="pc-rule" aria-hidden="true"></span><span class="pc-head" lang="en" aria-hidden="true">${esc(a.headline[0])} <em>${esc(a.headline[1])}</em></span>`
       : `<span class="pc-word">${esc(a.brand)}</span>`;
-  return `<a class="pc pc-${esc(a.kind)} ${size}" href="${esc(a.url)}" target="_blank" rel="sponsored noopener" aria-label="${esc(a.label)}: ${esc(a.brandKo || a.brand)} — ${esc(a.title)}">
-    <span class="pc-label">${esc(a.label)}</span>
+  return `<a class="pc pc-${esc(a.kind)} ${size}" href="${esc(a.url)}" target="_blank" rel="sponsored noopener" aria-label="${esc(tr(a, "label"))}: ${esc(LANG === "ko" ? a.brandKo || a.brand : a.brand)} — ${esc(tr(a, "title"))}">
+    <span class="pc-label">${esc(tr(a, "label"))}</span>
     <span class="pc-visual">${head}</span>
     <span class="pc-copy">
-      <span class="pc-title">${esc(a.title)}</span>
-      <span class="pc-text">${esc(a.text)}</span>
-      <span class="pc-cta">${esc(a.cta)}</span>
+      <span class="pc-title">${esc(tr(a, "title"))}</span>
+      <span class="pc-text">${esc(tr(a, "text"))}</span>
+      <span class="pc-cta">${esc(tr(a, "cta"))}</span>
     </span>
-    ${a.words ? `<span class="pc-run" aria-hidden="true"><span>${[...a.words, ...a.words].map((w) => `<i>${esc(w)}</i>`).join("")}</span></span>` : ""}
+    ${tr(a, "words") ? `<span class="pc-run" aria-hidden="true"><span>${[...tr(a, "words"), ...tr(a, "words")].map((w) => `<i>${esc(w)}</i>`).join("")}</span></span>` : ""}
   </a>`;
 }
 function ad(place) {
   const list = adsFor(place);
   if (!list.length) return "";
-  const notes = list.filter((a) => a.note).map((a) => `<p class="ad-note">${esc(a.brand)}: ${esc(a.note)}</p>`).join("");
-  return `<aside class="partners partners-${list.length > 1 ? "duo" : "solo"}" aria-label="파트너 서비스 광고">
+  const notes = list.filter((a) => tr(a, "note")).map((a) => `<p class="ad-note">${esc(a.brand)}: ${esc(tr(a, "note"))}</p>`).join("");
+  return `<aside class="partners partners-${list.length > 1 ? "duo" : "solo"}" aria-label="${L.partnersAria}">
   <div class="wrap">
     <p class="partners-h"><span lang="fr">Les maisons partenaires</span></p>
     <div class="partners-grid">${list.map((a) => adCard(a, list.length > 1 ? "" : "pc-wide")).join("")}</div>
@@ -290,35 +298,35 @@ function heroSlides(h) {
           <a class="link-under" href="#services">${esc(h.hero.secondary)}</a>
         </div>
       </div>
-      <div class="slide-art hero-obj">${OBJECT}</div>
+      <div class="slide-art hero-obj">${OBJECT_SRC.replace("__OBJ__", esc(L.objLabel))}</div>
     </div>
   </article>`;
   const partnerScene = (a) => {
     if (a.kind === "chainbrief") return `<article class="slide s-cb" data-name="${esc(a.brand)}" aria-roledescription="slide" aria-hidden="true">
       <div class="slide-bg" aria-hidden="true"></div>
       <div class="wrap slide-center">
-        <p class="slide-ad">${esc(a.label)} · Partenaire</p>
+        <p class="slide-ad">${esc(tr(a, "label"))} · Partenaire</p>
         <p class="cb-mast" aria-hidden="true">${esc(a.brand).split("").map((c, k) => `<span style="--k:${k}">${c}</span>`).join("")}</p>
         <span class="cb-rule" aria-hidden="true"></span>
-        <h2 class="cb-tag">${esc(a.title)}</h2>
-        <p class="cb-live" data-cb-live><span>비트코인 업비트</span><strong data-cb-btc>—</strong><span>김프</span><strong data-cb-kimp>—</strong></p>
-        <a class="btn btn-ink" href="${esc(a.url)}" target="_blank" rel="sponsored noopener">${esc(a.cta)}</a>
+        <h2 class="cb-tag">${esc(tr(a, "title"))}</h2>
+        <p class="cb-live" data-cb-live><span>${L.cbLiveBtc}</span><strong data-cb-btc>—</strong><span>${L.cbLiveKimp}</span><strong data-cb-kimp>—</strong></p>
+        <a class="btn btn-ink" href="${esc(a.url)}" target="_blank" rel="sponsored noopener">${esc(tr(a, "cta"))}</a>
       </div>
-      <div class="slide-run" aria-hidden="true"><span>${[...a.words, ...a.words, ...a.words].map((w) => `<i>${esc(w)}</i>`).join("")}</span></div>
+      <div class="slide-run" aria-hidden="true"><span>${[...tr(a, "words"), ...tr(a, "words"), ...tr(a, "words")].map((w) => `<i>${esc(w)}</i>`).join("")}</span></div>
     </article>`;
     if (a.kind === "perpline") return `<article class="slide s-pl" data-name="${esc(a.brand)}" aria-roledescription="slide" aria-hidden="true">
       <div class="slide-bg" aria-hidden="true"></div>
       <div class="wrap slide-center">
-        <p class="slide-ad">${esc(a.label)} · Partenaire</p>
+        <p class="slide-ad">${esc(tr(a, "label"))} · Partenaire</p>
         <p class="pl-word" aria-hidden="true">${esc(a.brand)}</p>
         <span class="pl-rule" aria-hidden="true"></span>
         <p class="pl-head" lang="en"><span>${esc(a.headline[0])}</span> <em>${esc(a.headline[1])}</em></p>
-        <h2 class="pl-ko">${esc(a.title)}</h2>
-        <p class="pl-stat"><span class="pl-num" data-count="50">50</span><span class="pl-pct">%</span><span class="pl-cap">최대 페이백<br>매주 USDT 지급</span></p>
-        <a class="btn btn-tone" href="${esc(a.url)}" target="_blank" rel="sponsored noopener">${esc(a.cta)}</a>
-        <p class="pl-note">${esc(a.note)}</p>
+        <h2 class="pl-ko">${esc(tr(a, "title"))}</h2>
+        <p class="pl-stat"><span class="pl-num" data-count="50">50</span><span class="pl-pct">%</span><span class="pl-cap">${L.plCap}</span></p>
+        <a class="btn btn-tone" href="${esc(a.url)}" target="_blank" rel="sponsored noopener">${esc(tr(a, "cta"))}</a>
+        <p class="pl-note">${esc(tr(a, "note"))}</p>
       </div>
-      <div class="slide-run" aria-hidden="true"><span>${[...a.words, ...a.words].map((w) => `<i>${esc(w)}</i>`).join("")}</span></div>
+      <div class="slide-run" aria-hidden="true"><span>${[...tr(a, "words"), ...tr(a, "words")].map((w) => `<i>${esc(w)}</i>`).join("")}</span></div>
     </article>`;
     return "";
   };
@@ -330,14 +338,14 @@ function heroSlides(h) {
   partners.slice(own.length).forEach((p) => order.push({ html: partnerScene(p), name: p.brand }));
   const total = order.length;
   const html = order.map((o, i) => o.html.replace('aria-roledescription="slide"', `aria-roledescription="slide" aria-label="${i + 1} / ${total}: ${esc(o.name)}"`)).join("");
-  return `<section class="hero" aria-roledescription="carousel" aria-label="BLOCKKEY 소개와 파트너 서비스" data-hero>
+  return `<section class="hero" aria-roledescription="carousel" aria-label="${L.heroAria}" data-hero>
   <div class="slides">${html}</div>
   ${total > 1 ? `<div class="wrap slide-ui">
     <ol class="slide-tabs">${order.map((s, i) => `<li><button type="button" data-go="${i}"${i === 0 ? ' aria-current="true"' : ""}><span class="tab-n">${String(i + 1).padStart(2, "0")}</span><span class="tab-name">${esc(s.name)}</span><span class="tab-bar"><i></i></span></button></li>`).join("")}</ol>
     <div class="slide-nav">
-      <button type="button" data-prev aria-label="이전 장면"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
-      <button type="button" data-pause aria-label="자동 넘김 멈춤"><svg viewBox="0 0 24 24" aria-hidden="true" class="i-pause"><path d="M9 5v14M15 5v14"/></svg><svg viewBox="0 0 24 24" aria-hidden="true" class="i-play"><path d="M8 5l11 7-11 7z"/></svg></button>
-      <button type="button" data-next aria-label="다음 장면"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+      <button type="button" data-prev aria-label="${L.prev}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button type="button" data-pause aria-label="${L.pause}"><svg viewBox="0 0 24 24" aria-hidden="true" class="i-pause"><path d="M9 5v14M15 5v14"/></svg><svg viewBox="0 0 24 24" aria-hidden="true" class="i-play"><path d="M8 5l11 7-11 7z"/></svg></button>
+      <button type="button" data-next aria-label="${L.next}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
     </div>
   </div>` : ""}
 </section>`;
@@ -349,9 +357,9 @@ function home() {
 
   const hero = heroSlides(h);
 
-  const statement = `<section class="statement" aria-label="BLOCKKEY 소개">
+  const statement = `<section class="statement" aria-label="${L.statementAria}">
   <div class="wrap">
-    <p class="statement-text">마케팅은 데이터로,<br>제품은 AI로,<br>신뢰는 블록체인으로.</p>
+    <p class="statement-text">${L.statement}</p>
     <p class="statement-sub">${esc(h.services.lead.replace(/^[^.]*\.\s*/, ""))}</p>
   </div>
 </section>`;
@@ -369,7 +377,7 @@ function home() {
           <p class="svc-headline">${esc(s.headline)}</p>
           <p>${esc(s.text)}</p>
         </div>
-        <ul class="svc-deliv" aria-label="${esc(s.name)} 주요 작업">${s.deliverables.map((d) => `<li>${esc(d)}</li>`).join("")}</ul>
+        <ul class="svc-deliv" aria-label="${esc(L.deliverablesOf(s.name))}">${s.deliverables.map((d) => `<li>${esc(d)}</li>`).join("")}</ul>
       </article>`).join("")}
     </div>
   </div>
@@ -388,7 +396,7 @@ function home() {
         <p>${esc(c.approach)}</p>
       </article>`).join("")}
     </div>
-    <p class="uc-cta"><a class="link-under" href="#contact">우리 회사에도 적용할 수 있을지 묻기</a></p>
+    <p class="uc-cta"><a class="link-under" href="#contact">${L.ucCta}</a></p>
   </div>
 </section>`;
 
@@ -427,27 +435,27 @@ function home() {
   const eco = `<section id="ecosystem" class="sec" aria-labelledby="eco-title">
   <div class="wrap">
     <div class="sec-head">
-      <h2 id="eco-title" class="sec-title">프로젝트와 글로벌 Web3 생태계</h2>
-      <p class="fine">${esc(ECO.note)}</p>
+      <h2 id="eco-title" class="sec-title">${L.ecoTitle}</h2>
+      <p class="fine">${esc(tr(ECO, "note"))}</p>
     </div>
 
     <div class="eco-block">
-      <h3 class="eco-h">${esc(mw.title)}</h3>
+      <h3 class="eco-h">${esc(tr(mw, "title"))}</h3>
       <ol class="listings">
         ${mw.items.map((p) => `<li><a class="lst" href="${esc(p.url)}" target="_blank" rel="noopener">
-          <span class="lst-day">${esc(p.day || p.date)}</span>
+          <span class="lst-day">${esc(p.day || tr(p, "date"))}</span>
           <img class="lst-logo" src="${esc(p.logo)}" alt="" width="56" height="56" loading="lazy">
           <span class="lst-name">${esc(p.name)}<small>${esc(p.symbol)}</small></span>
-          <span class="lst-ex">${(p.exchanges || []).map((e) => `<span class="ex-chip ex-${e === "업비트" ? "upbit" : e === "빗썸" ? "bithumb" : "etc"}">${esc(e)}</span>`).join("")}${p.market ? `<span class="lst-mkt">${esc(p.market)}</span>` : ""}</span>
-          <span class="lst-go">CoinMarketCap에서 보기</span>
+          <span class="lst-ex">${(p.exchanges || []).map((e, k) => `<span class="ex-chip ex-${e === "업비트" ? "upbit" : e === "빗썸" ? "bithumb" : "etc"}">${esc((tr(p, "exchanges") || [])[k] || e)}</span>`).join("")}${tr(p, "market") ? `<span class="lst-mkt">${esc(tr(p, "market"))}</span>` : ""}</span>
+          <span class="lst-go">${L.cmc}</span>
         </a></li>`).join("")}
       </ol>
-      <p class="fine">${esc(mw.note)}</p>
+      <p class="fine">${esc(tr(mw, "note"))}</p>
     </div>
 
     <div class="eco-two">
       <div class="eco-block">
-        <h3 class="eco-h">관심 프로젝트</h3>
+        <h3 class="eco-h">${L.featured}</h3>
         <ul class="projects">
           ${ECO.featured.map((p) => `<li><a class="prj" href="${esc(p.url)}" target="_blank" rel="noopener">
             <img src="${esc(p.logo)}" alt="" width="48" height="48" loading="lazy">
@@ -456,7 +464,7 @@ function home() {
         </ul>
       </div>
       <div class="eco-block">
-        <h3 class="eco-h">글로벌 크립토 VC</h3>
+        <h3 class="eco-h">${L.vcs}</h3>
         <ul class="vcs">
           ${ECO.vcs.map((v) => `<li><a class="vc" href="${esc(v.url)}" target="_blank" rel="noopener"><img src="https://www.google.com/s2/favicons?domain=${esc(v.domain)}&amp;sz=128" alt="" width="32" height="32" loading="lazy"><span>${esc(v.name)}</span></a></li>`).join("")}
         </ul>
@@ -468,8 +476,8 @@ function home() {
   const faq = `<section id="faq" class="sec sec-stone" aria-labelledby="faq-title">
   <div class="wrap faq-grid">
     <div>
-      <h2 id="faq-title" class="sec-title">자주 받는 질문</h2>
-      <p class="side-note">더 궁금한 점은 상담 신청이나 텔레그램으로 남겨 주세요. ${esc(SITE.contact.replyTime)}됩니다.</p>
+      <h2 id="faq-title" class="sec-title">${L.faqTitle}</h2>
+      <p class="side-note">${esc(L.faqNote(SITE.contact.replyTime))}</p>
     </div>
     <div class="faq">
       ${h.faq.map((f) => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join("")}
@@ -484,27 +492,27 @@ function home() {
       <h2 id="contact-title" class="sec-title">${esc(h.contact.title)}</h2>
       <p class="side-note">${esc(h.contact.lead)}</p>
       <ul class="checks">${h.contact.points.map((p) => `<li>${esc(p)}</li>`).join("")}</ul>
-      ${TG ? `<p class="tg-line">바로 대화하고 싶다면 <a class="link-under" href="https://t.me/${esc(TG)}" target="_blank" rel="noopener">텔레그램 @${esc(TG)}</a></p>` : ""}
+      ${TG ? `<p class="tg-line">${L.tgLine} <a class="link-under" href="https://t.me/${esc(TG)}" target="_blank" rel="noopener">${L.telegram} @${esc(TG)}</a></p>` : ""}
     </div>
     <form class="form" data-contact novalidate>
       <div class="row2">
-        <label><span>이름 <b aria-hidden="true">*</b></span><input name="name" autocomplete="name" required></label>
-        <label><span>회사 / 팀</span><input name="company" autocomplete="organization"></label>
+        <label><span>${L.fName} <b aria-hidden="true">*</b></span><input name="name" autocomplete="name" required></label>
+        <label><span>${L.fCompany}</span><input name="company" autocomplete="organization"></label>
       </div>
       <div class="row2">
-        <label><span>이메일 <b aria-hidden="true">*</b></span><input name="email" type="email" autocomplete="email" required></label>
-        <label><span>연락처 · 텔레그램</span><input name="phone" autocomplete="tel"></label>
+        <label><span>${L.fEmail} <b aria-hidden="true">*</b></span><input name="email" type="email" autocomplete="email" required></label>
+        <label><span>${L.fPhone}</span><input name="phone" autocomplete="tel"></label>
       </div>
       <fieldset>
-        <legend>관심 서비스</legend>
+        <legend>${L.fInterest}</legend>
         <div class="chips">${h.contact.interests.map((t) => `<label class="chip"><input type="checkbox" name="interest" value="${esc(t)}"><span>${esc(t)}</span></label>`).join("")}</div>
       </fieldset>
-      <label><span>문의 내용 <b aria-hidden="true">*</b></span><textarea name="message" rows="5" required placeholder="예: 쇼핑몰 광고 리포트를 매주 수작업으로 만들고 있어요. 자동화할 수 있을까요?"></textarea></label>
+      <label><span>${L.fMessage} <b aria-hidden="true">*</b></span><textarea name="message" rows="5" required placeholder="${esc(L.fPlaceholder)}"></textarea></label>
       <input type="text" name="_gotcha" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <label class="agree"><input type="checkbox" name="agree" required> <span><a href="${u("privacy/")}" target="_blank">개인정보처리방침</a>에 동의합니다 (상담 목적으로만 사용)</span></label>
+      <label class="agree"><input type="checkbox" name="agree" required> <span>${L.fAgree(`<a href="${u("privacy/")}" target="_blank">${L.privacy}</a>`)}</span></label>
       <div class="form-end">
-        <button class="btn btn-dark" type="submit">${viaTg ? "텔레그램으로 상담 신청" : "상담 신청하기"}</button>
-        ${viaTg ? `<p class="fine">작성한 내용이 복사되고 @${esc(TG)} 대화창이 열립니다. 붙여넣고 보내 주세요.</p>` : ""}
+        <button class="btn btn-dark" type="submit">${viaTg ? L.fSubmitTg : L.fSubmit}</button>
+        ${viaTg ? `<p class="fine">${esc(L.fTgNote(TG))}</p>` : ""}
       </div>
       <p class="form-msg" data-form-msg role="status"></p>
     </form>
@@ -515,10 +523,10 @@ function home() {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
     name: SITE.nameFull,
-    description: SITE.description,
+    description: L.description,
     url: abs(""),
     areaServed: "KR",
-    knowsAbout: ["AI 마케팅", "LLM 애플리케이션 개발", "스마트 컨트랙트", "블록체인 연동"],
+    knowsAbout: L.knowsAbout,
     ...(SITE.contact.email ? { email: SITE.contact.email } : {}),
   };
   const faqLd = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: h.faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) };
@@ -531,69 +539,69 @@ function markets() {
   const body = `<section class="page-hero">
   <div class="wrap">
     <p class="crumb"><a href="${u("")}">BLOCKKEY</a></p>
-    <h1>디지털 자산 데이터 허브</h1>
-    <p class="lead">주요 코인 시세와 24시간 거래량, 업비트 김치 프리미엄, 체인별 TVL을 한 화면에서 확인하세요. 표시된 수치는 투자 권유가 아닙니다.</p>
-    <p class="mk-meta"><span>출처 CoinGecko · Upbit · DefiLlama · Alternative.me</span><span>약 2분마다 자동 갱신</span><span>마지막 조회 <time data-mk-updated>—</time></span><button class="btn-small" type="button" data-mk-refresh>새로고침</button></p>
+    <h1>${L.mkTitle}</h1>
+    <p class="lead">${L.mkLead}</p>
+    <p class="mk-meta"><span>${L.mkSource}</span><span>${L.mkAuto}</span><span>${L.mkLast} <time data-mk-updated>—</time></span><button class="btn-small" type="button" data-mk-refresh>${L.refresh}</button></p>
   </div>
 </section>
 <section class="sec sec-tight" aria-labelledby="mk-ov">
   <div class="wrap">
-    <h2 id="mk-ov" class="h-sm">시장 개요</h2>
+    <h2 id="mk-ov" class="h-sm">${L.mkOverview}</h2>
     <div class="stats">
-      <div class="stat"><span class="stat-l">비트코인 (USD)</span><strong data-stat="btc">—</strong><span class="stat-s" data-stat="btcChg"></span></div>
-      <div class="stat"><span class="stat-l">비트코인 도미넌스</span><strong data-stat="dom">—</strong><span class="stat-s">전체 시가총액 대비</span></div>
-      <div class="stat"><span class="stat-l">전체 체인 TVL</span><strong data-stat="tvl">—</strong><span class="stat-s">DefiLlama 합계</span></div>
-      <div class="stat"><span class="stat-l">공포·탐욕 지수</span><strong data-stat="fng">—</strong><span class="stat-s" data-stat="fngLbl"></span></div>
+      <div class="stat"><span class="stat-l">${L.stBtc}</span><strong data-stat="btc">—</strong><span class="stat-s" data-stat="btcChg"></span></div>
+      <div class="stat"><span class="stat-l">${L.stDom}</span><strong data-stat="dom">—</strong><span class="stat-s">${L.stDomSub}</span></div>
+      <div class="stat"><span class="stat-l">${L.stTvl}</span><strong data-stat="tvl">—</strong><span class="stat-s">${L.stTvlSub}</span></div>
+      <div class="stat"><span class="stat-l">${L.stFng}</span><strong data-stat="fng">—</strong><span class="stat-s" data-stat="fngLbl"></span></div>
     </div>
   </div>
 </section>
 <section class="sec sec-tight" aria-labelledby="mk-coins">
   <div class="wrap">
     <div class="tbl-head">
-      <h2 id="mk-coins" class="h-sm">주요 코인 시세</h2>
-      <div class="seg" role="group" aria-label="정렬">
-        <button type="button" data-sort="volume" aria-pressed="true">거래량 순</button>
-        <button type="button" data-sort="cap" aria-pressed="false">시가총액 순</button>
-        <button type="button" data-sort="change" aria-pressed="false">상승률 순</button>
+      <h2 id="mk-coins" class="h-sm">${L.mkCoins}</h2>
+      <div class="seg" role="group" aria-label="${L.sortAria}">
+        <button type="button" data-sort="volume" aria-pressed="true">${L.sortVol}</button>
+        <button type="button" data-sort="cap" aria-pressed="false">${L.sortCap}</button>
+        <button type="button" data-sort="change" aria-pressed="false">${L.sortChg}</button>
       </div>
     </div>
     <div class="tbl-wrap">
       <table class="tbl">
-        <thead><tr><th scope="col">자산</th><th scope="col">가격 (USD)</th><th scope="col">24h</th><th scope="col">업비트 (원)</th><th scope="col">김프</th><th scope="col">24h 거래량</th><th scope="col">시가총액</th></tr></thead>
-        <tbody data-mk-rows><tr><td colspan="7" class="empty">시세를 불러오는 중입니다.</td></tr></tbody>
+        <thead><tr><th scope="col">${L.thAsset}</th><th scope="col">${L.thPrice}</th><th scope="col">24h</th><th scope="col">${L.thUpbit}</th><th scope="col">${L.thKimp}</th><th scope="col">${L.thVol}</th><th scope="col">${L.thCap}</th></tr></thead>
+        <tbody data-mk-rows><tr><td colspan="7" class="empty">${L.mkLoading}</td></tr></tbody>
       </table>
     </div>
-    <p class="fine">김프(김치 프리미엄) = 업비트 원화 가격 ÷ (글로벌 USD 가격 × 환율) − 1. 업비트 원화마켓에 없는 코인은 — 로 표시합니다.</p>
+    <p class="fine">${L.kimpNote}</p>
   </div>
 </section>
 ${ad("markets-top")}
 <section class="sec sec-tight" aria-labelledby="mk-tvl">
   <div class="wrap">
-    <h2 id="mk-tvl" class="h-sm">체인별 TVL 상위</h2>
-    <p class="fine">TVL(Total Value Locked)은 체인 기반 DeFi에 예치된 자산의 추정 달러 가치입니다. 거래량이나 활성 주소 수와는 다른 지표입니다. <a href="${u("insights/reading-crypto-data/")}">지표 읽는 법</a></p>
-    <ol class="tvl" data-tvl><li class="empty">TVL을 불러오는 중입니다.</li></ol>
+    <h2 id="mk-tvl" class="h-sm">${L.tvlTitle}</h2>
+    <p class="fine">${L.tvlNote} <a href="${u("insights/reading-crypto-data/")}">${L.tvlHow}</a></p>
+    <ol class="tvl" data-tvl><li class="empty">${L.tvlLoading}</li></ol>
   </div>
 </section>
 ${ad("markets-bottom")}
 <section class="sec sec-tight" aria-labelledby="mk-ex">
   <div class="wrap">
-    <h2 id="mk-ex" class="h-sm">직접 확인하기</h2>
+    <h2 id="mk-ex" class="h-sm">${L.exTitle}</h2>
     <ul class="ex-list">
-      ${MKT.explorers.map((e) => `<li><a href="${esc(e.url)}" target="_blank" rel="noopener"><strong>${esc(e.name)}</strong><span>${esc(e.desc)}</span></a></li>`).join("")}
+      ${MKT.explorers.map((e) => `<li><a href="${esc(e.url)}" target="_blank" rel="noopener"><strong>${esc(e.name)}</strong><span>${esc(tr(e, "desc"))}</span></a></li>`).join("")}
     </ul>
-    <p class="fine">실시간 체결, 고래 지갑 추적, 순유입·순유출 같은 지표는 각 데이터 제공사의 별도 API 연동이 필요합니다. 이 페이지는 실제로 연결된 데이터만 표시합니다. 회사 대시보드에 이런 데이터를 붙이고 싶다면 <a href="${u("")}#contact">상담을 신청하세요.</a></p>
+    <p class="fine">${L.exNote} <a href="${u("")}#contact">${L.exCta}</a></p>
   </div>
 </section>`;
-  return layout({ title: "시장 데이터", description: "주요 코인 시세, 거래량, 업비트 김치 프리미엄, 체인별 TVL, 공포·탐욕 지수를 한 화면에서.", path: "markets/", body, bodyClass: "markets" });
+  return layout({ title: L.mkPageTitle, description: L.mkPageDesc, path: "markets/", body, bodyClass: "markets" });
 }
 
 /* ---------- 인사이트 ---------- */
 function insightList() {
   const body = `<section class="page-hero">
   <div class="wrap">
-    <p class="crumb"><a href="${u("")}">홈</a></p>
-    <h1>AI · 블록체인 인사이트</h1>
-    <p class="lead">사업에 바로 쓸 수 있는 AI와 블록체인 핵심 개념을 쉽게 정리합니다.</p>
+    <p class="crumb"><a href="${u("")}">BLOCKKEY</a></p>
+    <h1>${L.inTitle}</h1>
+    <p class="lead">${L.inLead}</p>
   </div>
 </section>
 <section class="sec sec-tight">
@@ -610,7 +618,7 @@ function insightList() {
 </section>
 ${ad("insights")}
 ${ctaBand()}`;
-  return layout({ title: "인사이트", description: "AI 마케팅 자동화, 온체인 데이터 읽기, 블록체인 연동 체크리스트 등 실무 가이드.", path: "insights/", body, bodyClass: "insights" });
+  return layout({ title: L.inPageTitle, description: L.inPageDesc, path: "insights/", body, bodyClass: "insights" });
 }
 
 function insightPage(p) {
@@ -619,14 +627,14 @@ function insightPage(p) {
   const body = `<article class="post">
   <header class="page-hero">
     <div class="wrap wrap-narrow">
-      <p class="crumb"><a href="${u("insights/")}">인사이트</a></p>
+      <p class="crumb"><a href="${u("insights/")}">${L.inPageTitle}</a></p>
       <h1>${esc(p.title)}</h1>
       <p class="post-meta"><span>${esc(p.category || "")}</span><time datetime="${esc(p.date)}">${fmtDate(p.date)}</time></p>
     </div>
   </header>
   <div class="wrap wrap-narrow prose">
     ${p.html}
-    ${next ? `<p class="post-next">다음 글 <a href="${u(`insights/${next.slug}/`)}">${esc(next.title)}</a></p>` : ""}
+    ${next ? `<p class="post-next">${L.nextPost} <a href="${u(`insights/${next.slug}/`)}">${esc(next.title)}</a></p>` : ""}
   </div>
 </article>
 ${ad("insights")}
@@ -638,19 +646,20 @@ ${ctaBand()}`;
 function ctaBand() {
   return `<section class="cta-band">
   <div class="wrap cta-in">
-    <p>우리 회사에 맞는 방법이 궁금하다면, 지금 상황을 한두 줄로 알려 주세요.</p>
-    <a class="btn btn-key" href="${u("")}#contact">무료 진단 신청</a>
+    <p>${L.ctaText}</p>
+    <a class="btn btn-key" href="${u("")}#contact">${L.ctaBtn}</a>
   </div>
 </section>`;
 }
 
 /* ---------- 약관 ---------- */
 function legal(name) {
-  const { data, body } = frontmatter(read(`content/legal/${name}.md`));
+  const lf = LANG === "ko" ? `content/legal/${name}.md` : `content/legal/${LANG}/${name}.md`;
+  const { data, body } = frontmatter(read(fs.existsSync(path.join(ROOT, lf)) ? lf : `content/legal/${name}.md`));
   const html = `<section class="page-hero">
   <div class="wrap wrap-narrow">
     <h1>${esc(data.title)}</h1>
-    <p class="post-meta"><span>최종 개정일 ${esc(data.updated)}</span></p>
+    <p class="post-meta"><span>${L.revised} ${esc(data.updated)}</span></p>
   </div>
 </section>
 <div class="wrap wrap-narrow prose legal">${fixLinks(markdown(body))}</div>`;
@@ -658,7 +667,7 @@ function legal(name) {
 }
 
 function notFound() {
-  return layout({ title: "페이지를 찾을 수 없습니다", path: "404.html", body: `<section class="page-hero nf"><div class="wrap"><h1>페이지를 찾을 수 없습니다</h1><p class="lead">주소가 바뀌었거나 삭제된 페이지입니다.</p><div class="actions"><a class="btn btn-key" href="${u("")}">홈으로 가기</a><a class="btn btn-line" href="${u("")}#contact">상담 신청</a></div></div></section>` });
+  return layout({ title: L.nfTitle, path: "404.html", body: `<section class="page-hero nf"><div class="wrap"><h1>${L.nfTitle}</h1><p class="lead">${L.nfLead}</p><div class="actions"><a class="btn btn-key" href="${u("")}">${L.nfHome}</a><a class="btn btn-line" href="${u("")}#contact">${L.nfContact}</a></div></div></section>` });
 }
 
 /* ---------- 쓰기 ---------- */
@@ -671,17 +680,25 @@ function write(rel, content) {
 fs.rmSync(DIST, { recursive: true, force: true });
 fs.cpSync(path.join(ROOT, "public"), DIST, { recursive: true });
 
-write("index.html", home());
-write("markets/index.html", markets());
-write("insights/index.html", insightList());
-for (const p of insights) write(`insights/${p.slug}/index.html`, insightPage(p));
-write("privacy/index.html", legal("privacy"));
-write("terms/index.html", legal("terms"));
+const urls = [];
+for (const lang of LANGS) {
+  LANG = lang; L = I18N[lang];
+  HOME = json(lang === "ko" ? "data/home.json" : `data/home.${lang}.json`);
+  insights = loadInsights(lang);
+  const P = prefix(lang);
+  write(`${P}index.html`, home());
+  write(`${P}markets/index.html`, markets());
+  write(`${P}insights/index.html`, insightList());
+  for (const p of insights) write(`${P}insights/${p.slug}/index.html`, insightPage(p));
+  write(`${P}privacy/index.html`, legal("privacy"));
+  write(`${P}terms/index.html`, legal("terms"));
+  urls.push(...["", "markets/", "insights/", ...insights.map((p) => `insights/${p.slug}/`), "privacy/", "terms/"].map((p) => abs(p)));
+}
+LANG = "ko"; L = I18N.ko; HOME = json("data/home.json"); insights = loadInsights("ko");
 write("404.html", notFound());
 
-const urls = ["", "markets/", "insights/", ...insights.map((p) => `insights/${p.slug}/`), "privacy/", "terms/"];
-write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((p) => `  <url><loc>${abs(p)}</loc></url>`).join("\n")}\n</urlset>\n`);
-write("robots.txt", `User-agent: *\nAllow: /\n${ORIGIN ? `Sitemap: ${abs("sitemap.xml")}\n` : ""}`);
+write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((p) => `  <url><loc>${p}</loc></url>`).join("\n")}\n</urlset>\n`);
+write("robots.txt", `User-agent: *\nAllow: /\n${ORIGIN ? `Sitemap: ${ORIGIN}${ua("sitemap.xml")}\n` : ""}`);
 if (SITE.domain) write("CNAME", SITE.domain + "\n");
 
-console.log(`빌드 완료 → dist/ (페이지 ${urls.length + 1}개, 인사이트 ${insights.length}개, BASE=${BASE})`);
+console.log(`빌드 완료 → dist/ (페이지 ${urls.length + 1}개, 언어 ${LANGS.join("·")}, BASE=${BASE})`);

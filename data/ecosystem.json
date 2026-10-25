@@ -30,7 +30,14 @@
           "빗썸"
         ],
         "market": "원화마켓",
-        "day": "10.19"
+        "day": "10.19",
+        "exchanges_en": [
+          "Upbit",
+          "Bithumb"
+        ],
+        "market_en": "KRW market",
+        "date_en": "10.19",
+        "event_en": "Upbit & Bithumb listing"
       },
       {
         "name": "Metaplex",
@@ -43,7 +50,13 @@
           "업비트"
         ],
         "market": "원화마켓",
-        "day": "10.20"
+        "day": "10.20",
+        "exchanges_en": [
+          "Upbit"
+        ],
+        "market_en": "KRW market",
+        "date_en": "10.20",
+        "event_en": "Upbit listing"
       },
       {
         "name": "Axis Robotics",
@@ -56,9 +69,17 @@
           "업비트"
         ],
         "market": "",
-        "day": "10.21"
+        "day": "10.21",
+        "exchanges_en": [
+          "Upbit"
+        ],
+        "market_en": "",
+        "date_en": "10.21",
+        "event_en": "Upbit listing"
       }
-    ]
+    ],
+    "title_en": "New listings on major exchanges, October 2026",
+    "note_en": "Listing dates may differ from token launch dates. Volumes change constantly; nothing here is investment advice or implies a partnership."
   },
   "vcs": [
     {
@@ -86,5 +107,6 @@
       "url": "https://www.coinbase.com/ventures",
       "domain": "coinbase.com"
     }
-  ]
+  ],
+  "note_en": "The items below are industry reference information. Unless stated and confirmed, they do not imply any investment, partnership or cooperation with BLOCKKEY AI."
 }

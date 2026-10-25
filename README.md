@@ -86,3 +86,10 @@ scripts/            빌드·로컬 서버·새 글
 
 ## 문의
 상담 폼은 이메일·폼 서비스가 비어 있으면 작성 내용을 복사하고 텔레그램 @btcbullit 대화창을 엽니다.
+
+## 영어 버전 (/en/)
+- 화면 문구: `scripts/i18n.mjs` (ko·en 둘 다 채우기)
+- 홈 문구: `data/home.en.json` (한국어 `data/home.json`과 같은 구조)
+- 데이터: 같은 파일 안의 `*_en` 필드 (`title_en`, `note_en`, `exchanges_en` 등). 없으면 한국어가 그대로 나옴
+- 글: `content/insights/en/같은-주소.md`, 약관: `content/legal/en/`
+- 헤더 오른쪽 KO / EN으로 같은 페이지끼리 오감

@@ -1,0 +1,141 @@
+{
+  "hero": {
+    "title": "Connecting technology,\nexpanding what's possible.",
+    "lead": "From AI marketing to development and blockchain integration, one team designs and runs the next stage of your business.",
+    "primary": "Request a free diagnosis",
+    "secondary": "See services",
+    "scenes": [
+      {
+        "id": "intelligence",
+        "fr": "L'intelligence.",
+        "title": "Smarter marketing,\nbuilt with AI.",
+        "lead": "AI reads the ad data, agents take the repetitive work. Your people focus on decisions.",
+        "points": [
+          "Performance ad automation",
+          "AI content pipeline",
+          "RAG knowledge search"
+        ],
+        "cta": "AI marketing & development",
+        "href": "#ai-marketing"
+      },
+      {
+        "id": "confiance",
+        "fr": "La confiance.",
+        "title": "Connecting systems,\ndesigning trust.",
+        "lead": "From smart contract design to wallet integration and on-chain monitoring, we run blockchain in the language of your business.",
+        "points": [
+          "Smart contract design & review",
+          "Wallet & payment integration",
+          "Transaction monitoring"
+        ],
+        "cta": "Blockchain integration",
+        "href": "#blockchain"
+      }
+    ]
+  },
+  "services": {
+    "title": "Three disciplines, one team",
+    "lead": "Marketing through data, products through AI, trust through blockchain. You don't need three separate vendors for three different fields.",
+    "items": [
+      {
+        "id": "ai-marketing",
+        "name": "AI marketing",
+        "headline": "The team that learns your ad budget fastest",
+        "text": "We bring search, social and CRM data together so AI can optimize budget allocation and messaging on its own. Campaign analysis and automated workflows raise marketing efficiency.",
+        "deliverables": [
+          "Performance ad operations automation",
+          "AI content & copy pipeline",
+          "Lead scoring and retargeting"
+        ],
+        "fr": "La croissance"
+      },
+      {
+        "id": "ai-development",
+        "name": "AI development",
+        "headline": "AI that plugs straight into the work",
+        "text": "We design LLM applications around your documents and workflows, then connect them to your existing services so they do real work.",
+        "deliverables": [
+          "RAG-based internal knowledge search",
+          "Workflow automation agents",
+          "Internal system & external API integration"
+        ],
+        "fr": "L'intelligence"
+      },
+      {
+        "id": "blockchain",
+        "name": "Blockchain integration & ops",
+        "headline": "On-chain data in the language of business",
+        "text": "From smart contract design to wallet integration and on-chain data monitoring, we keep your Web3 infrastructure running reliably.",
+        "deliverables": [
+          "Smart contract design & review",
+          "Wallet & payment integration",
+          "Transaction monitoring dashboards"
+        ],
+        "fr": "La confiance"
+      }
+    ]
+  },
+  "useCases": {
+    "title": "How we'd approach situations like these",
+    "note": "The examples below are illustrations of approach. They are not delivered projects or verified results.",
+    "items": [
+      {
+        "area": "AI marketing",
+        "problem": "If you collect results from several ad platforms by hand every time",
+        "approach": "We bring campaign data into one place and design a flow where AI drafts the reports and insights automatically.",
+        "tags": ["Ad reporting", "Automation", "Analytics"]
+      },
+      {
+        "area": "AI development",
+        "problem": "If customers keep asking the same questions and your team is short on time",
+        "approach": "We look at an AI support assistant that searches your FAQ and internal documents to cut response time.",
+        "tags": ["AI support", "Knowledge search", "Efficiency"]
+      },
+      {
+        "area": "Blockchain",
+        "problem": "If you check transactions and wallets across several networks one by one",
+        "approach": "We design a way to collect transactions by chain and bring them into a single monitoring dashboard.",
+        "tags": ["Web3", "Transaction monitoring", "Dashboards"]
+      }
+    ]
+  },
+  "process": {
+    "title": "Start small, leave something solid",
+    "lead": "We'd rather show you a four-week result than a grand proposal. Validate with a pilot, then scale.",
+    "steps": [
+      { "name": "Diagnose", "time": "1 week", "text": "We review your data and systems and find where AI or blockchain can actually deliver results." },
+      { "name": "Design", "time": "1 week", "text": "We agree on target metrics first, then design the architecture and prototype." },
+      { "name": "Build", "time": "2–4 weeks", "text": "We build and demo in two-to-four-week cycles and improve fast on your team's feedback." },
+      { "name": "Operate", "time": "Ongoing", "text": "We stay accountable for monitoring, access control, and model and contract updates." }
+    ]
+  },
+  "why": {
+    "title": "We don't sell technology. We build results with you.",
+    "lead": "Adopting new technology always feels risky. That's why we don't slice up scope and responsibility.",
+    "items": [
+      { "name": "One team, end to end", "text": "Planning, development, marketing and operations aren't split. One team owns the target metric." },
+      { "name": "Proven by metrics", "text": "We decide with data, not hunches. Every improvement comes with a measurable metric." },
+      { "name": "Security by default", "text": "Access separation, audit logs and contract review are designed in from day one." }
+    ],
+    "honesty": "If the free diagnosis concludes that you don't need this yet, we'll tell you. Blockchain often isn't the answer.",
+    "stackTitle": "Stack we've run in production",
+    "stack": ["OpenAI", "Anthropic Claude", "LangChain", "RAG", "Solidity", "EVM", "The Graph", "GA4", "Meta Ads", "Webhook / API"]
+  },
+  "faq": [
+    { "q": "Do we need a lot of data to adopt AI?", "a": "No. You can start with the inquiry logs, ad data and internal documents you already have. If data is thin, we design how to collect it first." },
+    { "q": "How do we know if our business really needs blockchain?", "a": "It pays off where trust is expensive: tamper-proof records, asset ownership, settlement between several parties. If you don't need it, the free diagnosis will say so plainly." },
+    { "q": "Can you connect to our existing store or CRM?", "a": "Yes. We work with REST and webhook integrations and major commerce and CRM APIs. We prefer connecting only what's needed rather than replacing your systems." },
+    { "q": "How are timeline and cost decided?", "a": "It depends on scope, but a pilot usually takes about four weeks. After the diagnosis we document the scope and quote, and work to that." },
+    { "q": "Do you market crypto and Web3 projects?", "a": "Yes. We cover community operations around exchange listings, global channel advertising and on-chain data targeting. We never run promotion that promises prices or returns." }
+  ],
+  "contact": {
+    "title": "Start with a free diagnosis",
+    "lead": "Describe your situation in a line or two and we'll tell you where to start.",
+    "points": [
+      "The first diagnosis and direction are free",
+      "Reply within one business day",
+      "NDA available when needed"
+    ],
+    "interests": ["AI marketing", "AI development", "Blockchain integration", "Not sure yet"]
+  }
+}

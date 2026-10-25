@@ -10,7 +10,6 @@
 4. 생태계 '이달의 신규 상장'을 매월 초 갱신 (거래소 공지·보도로 확인된 것만)
 5. 서비스별 상세 페이지 (/services/ai-marketing/ 등) — 검색 유입용, 산출물·진행 예시
 6. 시장 데이터: BTC 현물 ETF 순유입, 펀딩비 등 공개 API로 가능한 지표 검토
-7. 영문 페이지 (/en/) — 해외 Web3 프로젝트 대상
 8. 히어로 오브제 디테일: 다크/라이트 반사, 마우스 위치에 따른 미세한 빛 이동(모션 최소)
 
 ## 사용자 조치 필요
@@ -20,6 +19,7 @@
 - 사업자 정보(상호·대표·사업자등록번호) → site.config.json footer
 
 ## 완료
+- 2026-10-26 영어 버전(/en/) + 헤더 KO/EN 언어 선택, hreflang. 문구는 data/home.en.json, 데이터는 *_en 필드, 글은 content/insights/en/
 - 2026-10-26 첫 화면 5장면 (BLOCKKEY → 체인브리프 → BLOCKKEY L'intelligence → Perpline → BLOCKKEY La confiance)
 - 2026-10-26 세준 승인으로 Perpline 배너 노출 (이용 조건 문구 유지 필수). 첫 화면 장면 슬라이드(BLOCKKEY → 체인브리프 → Perpline), 파트너 카드 배치(홈·시장 데이터·인사이트)
 - 2026-10-26 생태계 섹션 컬러 로고, 상장일·거래소 배지

@@ -27,7 +27,20 @@
       ],
       "cta": "체인브리프 보기",
       "url": "https://probe2928-crypto.github.io/chainbrief/news/?utm_source=blockkey&utm_medium=banner&utm_campaign=site",
-      "note": ""
+      "note": "",
+      "label_en": "Ad",
+      "title_en": "Korea's fastest crypto news, kimchi premium and listings",
+      "text_en": "24/7 crypto news · global headlines summarized in Korean · live prices and kimchi premium (Korean-language site)",
+      "tagline_en": "Korea's fastest crypto news and prices",
+      "words_en": [
+        "Breaking news",
+        "Listings",
+        "Prices",
+        "Kimchi premium",
+        "Global headlines",
+        "Community"
+      ],
+      "cta_en": "Visit ChainBrief"
     },
     {
       "id": "perpline",
@@ -63,7 +76,25 @@
       ],
       "cta": "Perpline 보기",
       "url": "https://probe2928-crypto.github.io/perpline/?utm_source=blockkey&utm_medium=banner&utm_campaign=site",
-      "note": "Perpline 이용 조건상 대한민국·미국 거주자는 이용 대상이 아닙니다. 레버리지 파생상품은 증거금 전액 손실 위험이 있으며 투자 권유가 아닙니다."
+      "note": "Perpline 이용 조건상 대한민국·미국 거주자는 이용 대상이 아닙니다. 레버리지 파생상품은 증거금 전액 손실 위험이 있으며 투자 권유가 아닙니다.",
+      "label_en": "Ad",
+      "title_en": "Get 30–50% of your futures trading fees back, weekly in USDT",
+      "text_en": "Compare fees on 11 futures exchanges · sign up via referral and get 30–50% of your trading fees back every week",
+      "words_en": [
+        "BTCC",
+        "OKX",
+        "Gate",
+        "BingX",
+        "OrangeX",
+        "Bitget",
+        "Bitunix",
+        "BloFin",
+        "Deepcoin",
+        "Biconomy",
+        "Crypfine"
+      ],
+      "cta_en": "Visit Perpline",
+      "note_en": "Under Perpline's terms, residents of the Republic of Korea and the United States are not eligible. Leveraged derivatives can lose your entire margin. Not investment advice."
     }
   ]
 }

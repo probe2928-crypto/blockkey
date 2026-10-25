@@ -3,6 +3,9 @@
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const BK = window.BK || {};
+  const T = BK.t || {};
+  const LOC = T.locale || "ko-KR";
+  const fmt = (s, h) => String(s).replace("{h}", h);
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   async function getJSON(url, opts = {}, ms = 9000) {
@@ -29,10 +32,10 @@
     menuBtn.addEventListener("click", () => {
       const open = nav.classList.toggle("is-open");
       menuBtn.setAttribute("aria-expanded", open);
-      menuBtn.textContent = open ? "닫기" : "메뉴";
+      $(".menu-txt", menuBtn).textContent = open ? T.close : T.menu;
     });
     nav.addEventListener("click", (e) => {
-      if (e.target.closest("a")) { nav.classList.remove("is-open"); menuBtn.setAttribute("aria-expanded", "false"); menuBtn.textContent = "메뉴"; }
+      if (e.target.closest("a")) { nav.classList.remove("is-open"); menuBtn.setAttribute("aria-expanded", "false"); $(".menu-txt", menuBtn).textContent = T.menu; }
     });
   }
   // 현재 페이지 메뉴 표시
@@ -74,7 +77,7 @@
     const setPaused = () => hero.classList.toggle("is-paused", userPaused || !!hero.querySelector(":focus-visible"));
     $("[data-pause]", hero)?.addEventListener("click", (e) => {
       userPaused = !userPaused;
-      e.currentTarget.setAttribute("aria-label", userPaused ? "자동 넘김 재생" : "자동 넘김 멈춤");
+      e.currentTarget.setAttribute("aria-label", userPaused ? T.play : T.pause);
       setPaused();
     });
     hero.addEventListener("focusin", setPaused);
@@ -135,7 +138,7 @@
         <td class="${dir(c.kimp)}">${pct(c.kimp)}</td>
         <td>${big(c.total_volume)}</td>
         <td>${big(c.market_cap)}</td>
-      </tr>`).join("") || `<tr><td colspan="7" class="empty">시세를 불러오지 못했습니다. 잠시 후 새로고침해 주세요.</td></tr>`;
+      </tr>`).join("") || `<tr><td colspan="7" class="empty">${T.loadFail}</td></tr>`;
     }
     $$("[data-sort]").forEach((b) => b.addEventListener("click", () => {
       sortKey = b.dataset.sort;
@@ -174,7 +177,7 @@
       const max = top[0]?.tvl || 1;
       $("[data-tvl]").innerHTML = top.map((c, i) => `<li><span class="rank">${i + 1}</span><span>${c.name}</span><span class="bar" aria-hidden="true"><i style="width:${(c.tvl / max * 100).toFixed(1)}%"></i></span><span class="val">${big(c.tvl)}</span></li>`).join("");
     }
-    const FNG = { "Extreme Fear": "극단적 공포", Fear: "공포", Neutral: "중립", Greed: "탐욕", "Extreme Greed": "극단적 탐욕" };
+    const FNG = T.fng || {};
     async function loadFng() {
       const f = await getJSON("https://api.alternative.me/fng/?limit=1");
       const now = f.data[0];
@@ -184,9 +187,9 @@
     async function loadAll() {
       const res = await Promise.allSettled([loadCoins(), loadGlobal(), loadTvl(), loadFng()]);
       if (res[0].status === "rejected" && !data.length) drawTable();
-      if (res[2].status === "rejected") { const t = $("[data-tvl]"); if (t && !t.querySelector(".bar")) t.innerHTML = `<li class="empty">TVL을 불러오지 못했습니다. 잠시 후 새로고침해 주세요.</li>`; }
+      if (res[2].status === "rejected") { const t = $("[data-tvl]"); if (t && !t.querySelector(".bar")) t.innerHTML = `<li class="empty">${T.tvlFail}</li>`; }
       const u = $("[data-mk-updated]");
-      if (u) u.textContent = new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      if (u) u.textContent = new Date().toLocaleTimeString(LOC, { hour: "2-digit", minute: "2-digit", second: "2-digit" });
     }
     $("[data-mk-refresh]")?.addEventListener("click", loadAll);
     every(120000, loadAll);
@@ -209,28 +212,29 @@
         if ((empty || wrong) && !bad) bad = el;
       }
       if (bad) {
-        say(bad.name === "agree" ? "개인정보처리방침에 동의해 주세요." : bad.name === "email" && bad.value ? "이메일 주소 형식을 확인해 주세요." : "필수 항목(*)을 입력해 주세요.", "err");
+        say(bad.name === "agree" ? T.agree : bad.name === "email" && bad.value ? T.emailFmt : T.required, "err");
         bad.focus();
         return;
       }
       const fd = new FormData(form);
+      const Lb = T.labels;
       const payload = {
-        이름: fd.get("name"), 회사: fd.get("company") || "-", 이메일: fd.get("email"), 연락처: fd.get("phone") || "-",
-        관심서비스: fd.getAll("interest").join(", ") || "-", 문의내용: fd.get("message"),
+        [Lb.name]: fd.get("name"), [Lb.company]: fd.get("company") || "-", [Lb.email]: fd.get("email"), [Lb.phone]: fd.get("phone") || "-",
+        [Lb.interest]: fd.getAll("interest").join(", ") || "-", [Lb.message]: fd.get("message"),
       };
-      const subject = `[BLOCKKEY 상담 신청] ${payload.이름}${payload.회사 !== "-" ? ` / ${payload.회사}` : ""}`;
+      const subject = `${T.subject} ${payload[Lb.name]}${payload[Lb.company] !== "-" ? ` / ${payload[Lb.company]}` : ""}`;
       const btn = $("button[type=submit]", form);
-      btn.disabled = true; say("보내는 중입니다…");
+      btn.disabled = true; say(T.sending);
       try {
         if (c.web3formsKey) {
-          const r = await getJSON("https://api.web3forms.com/submit", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ access_key: c.web3formsKey, subject, from_name: "BLOCKKEY 웹사이트", replyto: payload.이메일, ...payload }) }, 15000);
+          const r = await getJSON("https://api.web3forms.com/submit", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ access_key: c.web3formsKey, subject, from_name: "BLOCKKEY 웹사이트", replyto: payload[Lb.email], ...payload }) }, 15000);
           if (!r.success) throw new Error(r.message);
         } else if (c.formspreeId) {
-          await getJSON(`https://formspree.io/f/${c.formspreeId}`, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ _subject: subject, _replyto: payload.이메일, ...payload }) }, 15000);
+          await getJSON(`https://formspree.io/f/${c.formspreeId}`, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ _subject: subject, _replyto: payload[Lb.email], ...payload }) }, 15000);
         } else if (c.email) {
           const body = Object.entries(payload).map(([k, v]) => `${k}: ${v}`).join("\n");
           location.href = `mailto:${c.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-          say("메일 앱이 열리면 내용을 확인하고 보내 주세요.", "ok");
+          say(T.mailOpen, "ok");
           btn.disabled = false;
           return;
         } else if (c.telegram) {
@@ -238,7 +242,7 @@
           let copied = false;
           try { await navigator.clipboard.writeText(text); copied = true; } catch {}
           window.open(`https://t.me/${c.telegram}`, "_blank", "noopener");
-          say(copied ? `내용을 복사했어요. 텔레그램 @${c.telegram} 대화창에 붙여넣고 보내 주세요.` : `텔레그램 @${c.telegram} 대화창에 아래 내용을 보내 주세요.`, "ok");
+          say(copied ? fmt(T.tgCopied, c.telegram) : fmt(T.tgSend, c.telegram), "ok");
           if (!copied) { msg.insertAdjacentHTML("beforeend", `<textarea class="tg-copy" readonly rows="6"></textarea>`); msg.querySelector(".tg-copy").value = text; }
           btn.disabled = false;
           return;
@@ -247,9 +251,9 @@
         }
         form.reset();
         $$("[aria-invalid]", form).forEach((el) => el.removeAttribute("aria-invalid"));
-        say("상담 신청이 접수되었습니다. 영업일 기준 1일 내에 회신드리겠습니다.", "ok");
+        say(T.ok, "ok");
       } catch (err) {
-        say(err.message === "no-endpoint" ? "지금은 온라인 접수가 준비 중입니다. 잠시 후 다시 시도해 주세요." : "전송하지 못했습니다. 네트워크를 확인하고 다시 시도해 주세요.", "err");
+        say(err.message === "no-endpoint" ? T.notReady : T.netFail, "err");
       } finally { btn.disabled = false; }
     });
     form.addEventListener("input", (e) => { if (e.target.getAttribute("aria-invalid") === "true") e.target.removeAttribute("aria-invalid"); });

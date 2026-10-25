@@ -162,10 +162,12 @@ html[lang="en"] .statement-text { font-size: clamp(2rem, 4.2vw, 3.9rem); }
 .s-cb .slide-bg { background: radial-gradient(ellipse 80% 70% at 50% 40%, #fbfaf7 0%, #f1efe9 70%, #e8e5dd 100%); }
 .cb-mast { font: 400 clamp(2.6rem, 9.4vw, 8.6rem)/1 "Bodoni Moda", "Didot", serif; letter-spacing: .16em; margin-right: -.16em; white-space: nowrap; }
 .cb-mast span { display: inline-block; }
+/* 큰 크기에서 Bodoni 가는 획이 사라지지 않게: 굵기↑, 작은 광학 크기(획 대비↓) */
+.cb-mast, .pc-mast { font-weight: 600; font-optical-sizing: none; font-variation-settings: "opsz" 11; text-shadow: 0 0 .5px currentColor; }
 .s-cb.is-enter .cb-mast { animation: none; }
 .s-cb.is-enter .cb-mast span { animation: letter 1.2s cubic-bezier(.2, .7, .1, 1) both; animation-delay: calc(.5s + var(--k) * .06s); }
 @keyframes letter { from { opacity: 0; transform: translateY(.35em); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
-.cb-rule { display: block; width: 120px; height: 1px; background: #111; margin: 34px 0 30px; transform-origin: center; }
+.cb-rule { display: block; width: 120px; height: 2px; background: #111; margin: 34px 0 30px; transform-origin: center; }
 .s-cb.is-enter .cb-rule { animation: rule 1.2s cubic-bezier(.77, 0, .18, 1) 1.1s both; }
 @keyframes rule { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 .cb-tag { font: 300 clamp(1.3rem, 2.4vw, 1.9rem)/1.5 var(--serif); letter-spacing: -0.01em; }

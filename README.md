@@ -78,11 +78,13 @@ scripts/            빌드·로컬 서버·새 글
 ## 디자인 원칙 (2026-10-26 전면 개편)
 - 유럽 하이엔드 브랜드(프랑스 메종, 하이엔드 오디오) 톤: 블랙 · 알루미늄 · 샴페인 골드, 헤어라인, 넓은 여백
 - 서체: 한글 제목 Hahmlet(가는 세리프), 본문 Noto Sans KR 300, 워드마크 Marcellus, 프랑스어 서명 Cormorant Garamond 이탤릭
-- 장식은 히어로의 알루미늄 오브제 하나만. 카드·그림자·둥근 모서리 쓰지 않음
+- 엠블럼: 알루미늄 링 + 샴페인 골드 실린더 + 열쇠 구멍 (build.mjs `EMBLEM`) — 헤더·푸터·첫 방문 인트로
+- 장식은 히어로 장면 아트와 엠블럼뿐. 카드·그림자·둥근 모서리 쓰지 않음
+- 광고 색: 체인브리프 에메랄드(#0f3b31), Perpline 로열 블루(#1f2fa0), 둘 다 샴페인 골드 포인트
 - 서비스별 프랑스어 서명: La croissance(마케팅) · L'intelligence(AI 개발) · La confiance(블록체인)
 
 ## 광고 배너 → `data/ads.json`
-`enabled: true`면 노출. `placements`: `home`, `markets`, `insights`. 지금: 체인브리프(노출), Perpline(대기).
+`enabled: true`면 노출. `placements`: `home`, `markets`, `insights`. 지금: 체인브리프·Perpline 둘 다 노출 (첫 화면 2·4번 장면 + 홈 중간·시장 데이터·인사이트).
 
 ## 문의
 상담 폼은 이메일·폼 서비스가 비어 있으면 작성 내용을 복사하고 텔레그램 @btcbullit 대화창을 엽니다.

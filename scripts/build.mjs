@@ -307,18 +307,18 @@ function home() {
     </div>
     <form class="form" data-contact novalidate>
       <div class="row2">
-        <label>이름 <b aria-hidden="true">*</b><input name="name" autocomplete="name" required></label>
-        <label>회사 / 팀<input name="company" autocomplete="organization"></label>
+        <label><span>이름 <b aria-hidden="true">*</b></span><input name="name" autocomplete="name" required></label>
+        <label><span>회사 / 팀</span><input name="company" autocomplete="organization"></label>
       </div>
       <div class="row2">
-        <label>이메일 <b aria-hidden="true">*</b><input name="email" type="email" autocomplete="email" required></label>
-        <label>연락처<input name="phone" type="tel" autocomplete="tel"></label>
+        <label><span>이메일 <b aria-hidden="true">*</b></span><input name="email" type="email" autocomplete="email" required></label>
+        <label><span>연락처</span><input name="phone" type="tel" autocomplete="tel"></label>
       </div>
       <fieldset>
         <legend>관심 서비스</legend>
         <div class="chips">${h.contact.interests.map((t) => `<label class="chip"><input type="checkbox" name="interest" value="${esc(t)}"><span>${esc(t)}</span></label>`).join("")}</div>
       </fieldset>
-      <label>문의 내용 <b aria-hidden="true">*</b><textarea name="message" rows="5" required placeholder="예: 쇼핑몰 광고 리포트를 매주 수작업으로 만들고 있어요. 자동화할 수 있을까요?"></textarea></label>
+      <label><span>문의 내용 <b aria-hidden="true">*</b></span><textarea name="message" rows="5" required placeholder="예: 쇼핑몰 광고 리포트를 매주 수작업으로 만들고 있어요. 자동화할 수 있을까요?"></textarea></label>
       <input type="text" name="_gotcha" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
       <label class="agree"><input type="checkbox" name="agree" required> <span><a href="${u("privacy/")}" target="_blank">개인정보처리방침</a>에 동의합니다 (상담 목적으로만 사용)</span></label>
       <button class="btn btn-key" type="submit">상담 신청하기</button>

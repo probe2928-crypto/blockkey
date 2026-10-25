@@ -56,14 +56,16 @@
     const short = (h) => (h ? `${h.slice(0, 10)}…${h.slice(-6)}` : "");
 
     function render(newKeys = new Set()) {
-      const items = [...seen.values()].sort((a, b) => b.time - a.time || b.height - a.height).slice(0, 5);
+      // 이더리움(12초)이 비트코인(10분)을 밀어내지 않도록 체인별 자리 확보: ETH 3 + BTC 2
+      const latest = (c, n) => [...seen.values()].filter((b) => b.chain === c).sort((a, b) => b.height - a.height).slice(0, n);
+      const items = [...latest("eth", 3), ...latest("btc", 2)].sort((a, b) => b.time - a.time);
       list.innerHTML = items.map((b) => `<li class="block${newKeys.has(b.key) && !firstPaint && !reduceMotion ? " is-new" : ""}">
         <span class="b-chain ${b.chain}" aria-hidden="true">${b.chain === "btc" ? "₿" : "Ξ"}</span>
         <span class="b-main"><span class="b-h">${b.chain === "btc" ? "Bitcoin" : "Ethereum"} #${b.height.toLocaleString("en-US")}</span><span class="b-hash">${short(b.hash)}</span></span>
         <span class="b-meta"><strong data-ago="${b.time}">${ago(b.time)}</strong>${b.tx.toLocaleString("ko-KR")}건</span>
       </li>`).join("");
       // 오래된 블록은 기억에서 지움
-      if (seen.size > 40) [...seen.values()].sort((a, b) => a.time - b.time).slice(0, seen.size - 40).forEach((b) => seen.delete(b.key));
+      for (const c of ["eth", "btc"]) { const all = [...seen.values()].filter((b) => b.chain === c).sort((a, b) => b.height - a.height); all.slice(10).forEach((b) => seen.delete(b.key)); }
       firstPaint = false;
     }
     function add(blocks) {

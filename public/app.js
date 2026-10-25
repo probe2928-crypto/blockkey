@@ -102,15 +102,19 @@
     async function cbLive() {
       if (Date.now() - cbAt < 60000) return;
       cbAt = Date.now();
+      const box = $("[data-cb-live]");
+      if (!box) return;
+      // 업비트 가격은 따로, 김프(CoinGecko 필요)는 실패해도 가격만 보여 줌
       try {
-        const [up, g] = await Promise.all([
-          getJSON("https://api.upbit.com/v1/ticker?markets=KRW-BTC"),
-          getJSON("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,tether&vs_currencies=usd,krw"),
-        ]);
-        const krw = up[0].trade_price, rate = g.tether.krw / g.tether.usd, kimp = (krw / (g.bitcoin.usd * rate) - 1) * 100;
+        const up = await getJSON("https://api.upbit.com/v1/ticker?markets=KRW-BTC");
+        const krw = up[0].trade_price;
         $("[data-cb-btc]").textContent = "₩" + Math.round(krw).toLocaleString("ko-KR");
-        $("[data-cb-kimp]").textContent = (kimp > 0 ? "+" : "") + kimp.toFixed(2) + "%";
-      } catch { const el = $("[data-cb-live]"); if (el) el.hidden = true; }
+        try {
+          const g = await getJSON("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,tether&vs_currencies=usd,krw");
+          const rate = g.tether.krw / g.tether.usd, kimp = (krw / (g.bitcoin.usd * rate) - 1) * 100;
+          $("[data-cb-kimp]").textContent = (kimp > 0 ? "+" : "") + kimp.toFixed(2) + "%";
+        } catch { const k = $("[data-cb-kimp]"); k.previousElementSibling.hidden = true; k.hidden = true; cbAt = 0; }
+      } catch { box.hidden = true; cbAt = 0; }
     }
     cbLive();
   }

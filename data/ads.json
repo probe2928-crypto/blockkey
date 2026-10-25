@@ -1,0 +1,36 @@
+{
+  "_comment": "광고 배너. enabled를 true로 바꾸면 노출. placements: home(생태계 섹션 아래), markets(코인 시세 표 아래), insights(인사이트 목록·글 하단).",
+  "items": [
+    {
+      "id": "chainbrief",
+      "enabled": true,
+      "placements": [
+        "home",
+        "markets",
+        "insights"
+      ],
+      "label": "광고",
+      "brand": "CHAINBRIEF 체인브리프",
+      "title": "코인 속보와 김프, 상장 소식을 가장 빠르게",
+      "text": "24시간 가상자산 속보 · 해외 헤드라인 한국어 요약 · 실시간 시세와 김치 프리미엄",
+      "cta": "체인브리프 보기",
+      "url": "https://probe2928-crypto.github.io/chainbrief/news/?utm_source=blockkey&utm_medium=banner&utm_campaign=site",
+      "note": ""
+    },
+    {
+      "id": "perpline",
+      "enabled": false,
+      "placements": [
+        "home",
+        "markets"
+      ],
+      "label": "광고",
+      "brand": "Perpline",
+      "title": "선물 거래 수수료, 매주 USDT로 30~50% 돌려받기",
+      "text": "11개 선물거래소 수수료 비교 · 레퍼럴 가입 시 거래 수수료의 30~50%를 매주 페이백",
+      "cta": "Perpline 보기",
+      "url": "https://probe2928-crypto.github.io/perpline/?utm_source=blockkey&utm_medium=banner&utm_campaign=site",
+      "note": "Perpline 이용 조건상 대한민국·미국 거주자는 이용 대상이 아닙니다. 레버리지 파생상품은 증거금 전액 손실 위험이 있으며 투자 권유가 아닙니다."
+    }
+  ]
+}

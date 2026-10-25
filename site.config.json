@@ -9,9 +9,11 @@
     "email": "",
     "web3formsKey": "",
     "formspreeId": "",
-    "telegram": "",
+    "telegram": "btcbullit",
     "kakao": "",
-    "replyTime": "영업일 기준 1일 내 회신"
+    "replyTime": "영업일 기준 1일 내 회신",
+    "community": "",
+    "communityLabel": "BLOCKKEY 커뮤니티"
   },
   "analytics": {
     "ga4": ""

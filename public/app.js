@@ -14,12 +14,6 @@
       return await r.json();
     } finally { clearTimeout(t); }
   }
-  const ago = (sec) => {
-    const s = Math.max(0, Math.round(Date.now() / 1000 - sec));
-    if (s < 60) return `${s}초 전`;
-    if (s < 3600) return `${Math.floor(s / 60)}분 전`;
-    return `${Math.floor(s / 3600)}시간 전`;
-  };
   // 백그라운드 탭에서는 멈추는 반복 실행
   function every(ms, fn) {
     let id = null;
@@ -43,72 +37,6 @@
   }
   // 현재 페이지 메뉴 표시
   $$(".nav a").forEach((a) => { if (a.pathname !== BK.base && location.pathname.startsWith(a.pathname) && !a.hash) a.setAttribute("aria-current", "page"); });
-
-  /* ---------- 히어로: 실시간 블록 ---------- */
-  const list = $("[data-blocks]");
-  if (list) {
-    const status = $("[data-chain-status]");
-    const seen = new Map(); // key → block
-    let firstPaint = true, okOnce = false;
-    const ETH_RPC = ["https://ethereum-rpc.publicnode.com", "https://eth.drpc.org"];
-
-    const setStatus = (live, text) => { status.textContent = text; status.classList.toggle("is-live", live); status.classList.toggle("is-down", !live); };
-    const short = (h) => (h ? `${h.slice(0, 10)}…${h.slice(-6)}` : "");
-
-    function render(newKeys = new Set()) {
-      // 이더리움(12초)이 비트코인(10분)을 밀어내지 않도록 체인별 자리 확보: ETH 3 + BTC 2
-      const latest = (c, n) => [...seen.values()].filter((b) => b.chain === c).sort((a, b) => b.height - a.height).slice(0, n);
-      const items = [...latest("eth", 3), ...latest("btc", 2)].sort((a, b) => b.time - a.time);
-      list.innerHTML = items.map((b) => `<li class="block${newKeys.has(b.key) && !firstPaint && !reduceMotion ? " is-new" : ""}">
-        <span class="b-chain ${b.chain}" aria-hidden="true">${b.chain === "btc" ? "₿" : "Ξ"}</span>
-        <span class="b-main"><span class="b-h">${b.chain === "btc" ? "Bitcoin" : "Ethereum"} #${b.height.toLocaleString("en-US")}</span><span class="b-hash">${short(b.hash)}</span></span>
-        <span class="b-meta"><strong data-ago="${b.time}">${ago(b.time)}</strong>${b.tx.toLocaleString("ko-KR")}건</span>
-      </li>`).join("");
-      // 오래된 블록은 기억에서 지움
-      for (const c of ["eth", "btc"]) { const all = [...seen.values()].filter((b) => b.chain === c).sort((a, b) => b.height - a.height); all.slice(10).forEach((b) => seen.delete(b.key)); }
-      firstPaint = false;
-    }
-    function add(blocks) {
-      const fresh = new Set();
-      for (const b of blocks) { b.key = `${b.chain}:${b.height}`; if (!seen.has(b.key)) { seen.set(b.key, b); fresh.add(b.key); } }
-      if (fresh.size) render(fresh);
-      okOnce = true;
-      setStatus(true, "실시간");
-    }
-    async function btc() {
-      const bl = await getJSON("https://mempool.space/api/v1/blocks");
-      add(bl.slice(0, 4).map((b) => ({ chain: "btc", height: b.height, hash: b.id, time: b.timestamp, tx: b.tx_count })));
-    }
-    let lastEth = 0;
-    async function ethCall(method, params) {
-      let err;
-      for (const url of ETH_RPC) {
-        try {
-          const r = await getJSON(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }) });
-          if (r.result) return r.result;
-          err = new Error("empty");
-        } catch (e) { err = e; }
-      }
-      throw err;
-    }
-    const ethBlock = async (tag) => {
-      const b = await ethCall("eth_getBlockByNumber", [tag, false]);
-      return { chain: "eth", height: parseInt(b.number, 16), hash: b.hash, time: parseInt(b.timestamp, 16), tx: b.transactions.length };
-    };
-    async function eth() {
-      const head = await ethBlock("latest");
-      const out = [head];
-      // 처음 한 번은 직전 블록 몇 개도 같이 채움
-      if (!lastEth) for (let i = 1; i <= 3; i++) out.push(await ethBlock("0x" + (head.height - i).toString(16)));
-      lastEth = head.height;
-      add(out);
-    }
-    const safe = (fn) => async () => { try { await fn(); } catch { if (!okOnce) setStatus(false, "연결 지연"); } };
-    every(60000, safe(btc));
-    every(12000, safe(eth));
-    every(5000, () => $$("[data-ago]", list).forEach((el) => (el.textContent = ago(+el.dataset.ago))));
-    setTimeout(() => { if (!okOnce) { setStatus(false, "연결 지연"); list.innerHTML = `<li class="block"><span class="b-chain" aria-hidden="true">·</span><span class="b-main"><span class="b-h">블록 데이터를 불러오지 못했습니다</span><span class="b-hash">네트워크 연결을 확인하거나 잠시 후 다시 열어 주세요</span></span><span class="b-meta"></span></li>`; } }, 15000);
-  }
 
   /* ---------- 시장 데이터 ---------- */
   const rowsEl = $("[data-mk-rows]");
@@ -229,6 +157,15 @@
           const body = Object.entries(payload).map(([k, v]) => `${k}: ${v}`).join("\n");
           location.href = `mailto:${c.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
           say("메일 앱이 열리면 내용을 확인하고 보내 주세요.", "ok");
+          btn.disabled = false;
+          return;
+        } else if (c.telegram) {
+          const text = `${subject}\n` + Object.entries(payload).map(([k, v]) => `${k}: ${v}`).join("\n");
+          let copied = false;
+          try { await navigator.clipboard.writeText(text); copied = true; } catch {}
+          window.open(`https://t.me/${c.telegram}`, "_blank", "noopener");
+          say(copied ? `내용을 복사했어요. 텔레그램 @${c.telegram} 대화창에 붙여넣고 보내 주세요.` : `텔레그램 @${c.telegram} 대화창에 아래 내용을 보내 주세요.`, "ok");
+          if (!copied) { msg.insertAdjacentHTML("beforeend", `<textarea class="tg-copy" readonly rows="6"></textarea>`); msg.querySelector(".tg-copy").value = text; }
           btn.disabled = false;
           return;
         } else {

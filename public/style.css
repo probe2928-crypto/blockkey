@@ -102,6 +102,10 @@ strong, b { font-weight: 500; }
 @keyframes rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
 @keyframes appear { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
 
+/* 영어는 단어가 길어 제목을 한 단계 작게 */
+html[lang="en"] .hero h1, html[lang="en"] .hero .scene-title { font-size: clamp(2.2rem, 4.2vw, 3.9rem); letter-spacing: -0.02em; }
+html[lang="en"] .statement-text { font-size: clamp(2rem, 4.2vw, 3.9rem); }
+
 /* 장면 1: BLOCKKEY */
 .s-bk .slide-bg { background: radial-gradient(ellipse 55% 70% at 72% 46%, #262626 0%, #0a0a0a 55%, #000 100%); }
 .slide-grid { display: grid; grid-template-columns: 1.2fr .8fr; align-items: center; gap: 40px; }

@@ -1,6 +1,6 @@
 {
   "hero": {
-    "title": "Connecting technology,\nexpanding what's possible.",
+    "title": "Connect technology.\nExpand what's possible.",
     "lead": "From AI marketing to development and blockchain integration, one team designs and runs the next stage of your business.",
     "primary": "Request a free diagnosis",
     "secondary": "See services",
@@ -83,19 +83,31 @@
         "area": "AI marketing",
         "problem": "If you collect results from several ad platforms by hand every time",
         "approach": "We bring campaign data into one place and design a flow where AI drafts the reports and insights automatically.",
-        "tags": ["Ad reporting", "Automation", "Analytics"]
+        "tags": [
+          "Ad reporting",
+          "Automation",
+          "Analytics"
+        ]
       },
       {
         "area": "AI development",
         "problem": "If customers keep asking the same questions and your team is short on time",
         "approach": "We look at an AI support assistant that searches your FAQ and internal documents to cut response time.",
-        "tags": ["AI support", "Knowledge search", "Efficiency"]
+        "tags": [
+          "AI support",
+          "Knowledge search",
+          "Efficiency"
+        ]
       },
       {
         "area": "Blockchain",
         "problem": "If you check transactions and wallets across several networks one by one",
         "approach": "We design a way to collect transactions by chain and bring them into a single monitoring dashboard.",
-        "tags": ["Web3", "Transaction monitoring", "Dashboards"]
+        "tags": [
+          "Web3",
+          "Transaction monitoring",
+          "Dashboards"
+        ]
       }
     ]
   },
@@ -103,30 +115,81 @@
     "title": "Start small, leave something solid",
     "lead": "We'd rather show you a four-week result than a grand proposal. Validate with a pilot, then scale.",
     "steps": [
-      { "name": "Diagnose", "time": "1 week", "text": "We review your data and systems and find where AI or blockchain can actually deliver results." },
-      { "name": "Design", "time": "1 week", "text": "We agree on target metrics first, then design the architecture and prototype." },
-      { "name": "Build", "time": "2–4 weeks", "text": "We build and demo in two-to-four-week cycles and improve fast on your team's feedback." },
-      { "name": "Operate", "time": "Ongoing", "text": "We stay accountable for monitoring, access control, and model and contract updates." }
+      {
+        "name": "Diagnose",
+        "time": "1 week",
+        "text": "We review your data and systems and find where AI or blockchain can actually deliver results."
+      },
+      {
+        "name": "Design",
+        "time": "1 week",
+        "text": "We agree on target metrics first, then design the architecture and prototype."
+      },
+      {
+        "name": "Build",
+        "time": "2–4 weeks",
+        "text": "We build and demo in two-to-four-week cycles and improve fast on your team's feedback."
+      },
+      {
+        "name": "Operate",
+        "time": "Ongoing",
+        "text": "We stay accountable for monitoring, access control, and model and contract updates."
+      }
     ]
   },
   "why": {
     "title": "We don't sell technology. We build results with you.",
     "lead": "Adopting new technology always feels risky. That's why we don't slice up scope and responsibility.",
     "items": [
-      { "name": "One team, end to end", "text": "Planning, development, marketing and operations aren't split. One team owns the target metric." },
-      { "name": "Proven by metrics", "text": "We decide with data, not hunches. Every improvement comes with a measurable metric." },
-      { "name": "Security by default", "text": "Access separation, audit logs and contract review are designed in from day one." }
+      {
+        "name": "One team, end to end",
+        "text": "Planning, development, marketing and operations aren't split. One team owns the target metric."
+      },
+      {
+        "name": "Proven by metrics",
+        "text": "We decide with data, not hunches. Every improvement comes with a measurable metric."
+      },
+      {
+        "name": "Security by default",
+        "text": "Access separation, audit logs and contract review are designed in from day one."
+      }
     ],
     "honesty": "If the free diagnosis concludes that you don't need this yet, we'll tell you. Blockchain often isn't the answer.",
     "stackTitle": "Stack we've run in production",
-    "stack": ["OpenAI", "Anthropic Claude", "LangChain", "RAG", "Solidity", "EVM", "The Graph", "GA4", "Meta Ads", "Webhook / API"]
+    "stack": [
+      "OpenAI",
+      "Anthropic Claude",
+      "LangChain",
+      "RAG",
+      "Solidity",
+      "EVM",
+      "The Graph",
+      "GA4",
+      "Meta Ads",
+      "Webhook / API"
+    ]
   },
   "faq": [
-    { "q": "Do we need a lot of data to adopt AI?", "a": "No. You can start with the inquiry logs, ad data and internal documents you already have. If data is thin, we design how to collect it first." },
-    { "q": "How do we know if our business really needs blockchain?", "a": "It pays off where trust is expensive: tamper-proof records, asset ownership, settlement between several parties. If you don't need it, the free diagnosis will say so plainly." },
-    { "q": "Can you connect to our existing store or CRM?", "a": "Yes. We work with REST and webhook integrations and major commerce and CRM APIs. We prefer connecting only what's needed rather than replacing your systems." },
-    { "q": "How are timeline and cost decided?", "a": "It depends on scope, but a pilot usually takes about four weeks. After the diagnosis we document the scope and quote, and work to that." },
-    { "q": "Do you market crypto and Web3 projects?", "a": "Yes. We cover community operations around exchange listings, global channel advertising and on-chain data targeting. We never run promotion that promises prices or returns." }
+    {
+      "q": "Do we need a lot of data to adopt AI?",
+      "a": "No. You can start with the inquiry logs, ad data and internal documents you already have. If data is thin, we design how to collect it first."
+    },
+    {
+      "q": "How do we know if our business really needs blockchain?",
+      "a": "It pays off where trust is expensive: tamper-proof records, asset ownership, settlement between several parties. If you don't need it, the free diagnosis will say so plainly."
+    },
+    {
+      "q": "Can you connect to our existing store or CRM?",
+      "a": "Yes. We work with REST and webhook integrations and major commerce and CRM APIs. We prefer connecting only what's needed rather than replacing your systems."
+    },
+    {
+      "q": "How are timeline and cost decided?",
+      "a": "It depends on scope, but a pilot usually takes about four weeks. After the diagnosis we document the scope and quote, and work to that."
+    },
+    {
+      "q": "Do you market crypto and Web3 projects?",
+      "a": "Yes. We cover community operations around exchange listings, global channel advertising and on-chain data targeting. We never run promotion that promises prices or returns."
+    }
   ],
   "contact": {
     "title": "Start with a free diagnosis",
@@ -136,6 +199,11 @@
       "Reply within one business day",
       "NDA available when needed"
     ],
-    "interests": ["AI marketing", "AI development", "Blockchain integration", "Not sure yet"]
+    "interests": [
+      "AI marketing",
+      "AI development",
+      "Blockchain integration",
+      "Not sure yet"
+    ]
   }
 }

@@ -74,9 +74,9 @@ strong, b { font-weight: 500; }
 
 /* ---------- 히어로 ---------- */
 .hero { background: radial-gradient(ellipse 60% 70% at 72% 48%, #232323 0%, #0a0a0a 55%, #000 100%); color: #fff; overflow: hidden; }
-.hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; align-items: center; gap: 40px; min-height: calc(100svh - 76px); max-height: 980px; padding: 72px 0; }
+.hero-grid { display: grid; grid-template-columns: 1.2fr .8fr; align-items: center; gap: 40px; min-height: calc(100svh - 76px); max-height: 980px; padding: 72px 0; }
 .sign { font: italic 300 24px/1.2 var(--fr); color: var(--champ-hi); margin-bottom: 28px; }
-.hero h1 { font: 200 clamp(2.7rem, 6vw, 5.4rem)/1.14 var(--serif); letter-spacing: -0.03em; }
+.hero h1 { font: 200 clamp(2.5rem, 5.1vw, 4.7rem)/1.16 var(--serif); letter-spacing: -0.03em; }
 .hero .lead { margin-top: 32px; max-width: 28em; font-size: 17px; color: var(--alu); }
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 22px 36px; margin-top: 52px; }
 .actions .link-under { font-size: 15px; letter-spacing: .04em; color: var(--alu); }

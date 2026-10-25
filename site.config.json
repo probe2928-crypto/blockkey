@@ -1,0 +1,25 @@
+{
+  "name": "BLOCKKEY",
+  "nameFull": "BLOCKKEY AI",
+  "title": "BLOCKKEY | AI 마케팅 · AI 개발 · 블록체인 연동 관리",
+  "description": "BLOCKKEY는 AI 마케팅, AI 개발, 블록체인 연동·관리를 한 팀에서 수행합니다. 진단부터 구축, 운영까지 이어서 책임지는 기술 파트너.",
+  "domain": "",
+  "lang": "ko",
+  "contact": {
+    "email": "",
+    "web3formsKey": "",
+    "formspreeId": "",
+    "telegram": "",
+    "kakao": "",
+    "replyTime": "영업일 기준 1일 내 회신"
+  },
+  "analytics": {
+    "ga4": ""
+  },
+  "footer": {
+    "company": "",
+    "ceo": "",
+    "registration": "",
+    "address": ""
+  }
+}

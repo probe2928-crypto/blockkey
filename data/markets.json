@@ -1,0 +1,21 @@
+{
+  "coins": [
+    { "id": "bitcoin", "symbol": "BTC", "name": "비트코인" },
+    { "id": "ethereum", "symbol": "ETH", "name": "이더리움" },
+    { "id": "solana", "symbol": "SOL", "name": "솔라나" },
+    { "id": "ripple", "symbol": "XRP", "name": "엑스알피" },
+    { "id": "binancecoin", "symbol": "BNB", "name": "BNB", "upbit": false },
+    { "id": "hyperliquid", "symbol": "HYPE", "name": "하이퍼리퀴드", "upbit": false },
+    { "id": "dogecoin", "symbol": "DOGE", "name": "도지코인" },
+    { "id": "tron", "symbol": "TRX", "name": "트론" },
+    { "id": "chainlink", "symbol": "LINK", "name": "체인링크" },
+    { "id": "cardano", "symbol": "ADA", "name": "에이다" }
+  ],
+  "explorers": [
+    { "name": "CoinGecko", "desc": "코인별 시세·거래소 목록", "url": "https://www.coingecko.com/" },
+    { "name": "DefiLlama", "desc": "체인·프로토콜별 TVL", "url": "https://defillama.com/chains" },
+    { "name": "mempool.space", "desc": "비트코인 블록·수수료", "url": "https://mempool.space/" },
+    { "name": "Etherscan", "desc": "이더리움 트랜잭션·지갑", "url": "https://etherscan.io/" },
+    { "name": "Solscan", "desc": "솔라나 트랜잭션·지갑", "url": "https://solscan.io/" }
+  ]
+}

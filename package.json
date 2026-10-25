@@ -1,0 +1,13 @@
+{
+  "name": "blockkey",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "BLOCKKEY AI — AI 마케팅 · AI 개발 · 블록체인 연동·관리 (정적 사이트 + GitHub Pages)",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs && node scripts/serve.mjs",
+    "new": "node scripts/new-insight.mjs"
+  },
+  "engines": { "node": ">=20" }
+}

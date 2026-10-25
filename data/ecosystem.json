@@ -1,0 +1,54 @@
+{
+  "note": "아래 항목은 프로젝트 및 업계 참고 정보입니다. 별도 표기나 확인 없이 BLOCKKEY AI와의 투자·제휴·협력 관계를 의미하지 않습니다.",
+  "featured": [
+    {
+      "name": "SOON",
+      "symbol": "SOON",
+      "logo": "https://s2.coinmarketcap.com/static/img/coins/128x128/36542.png",
+      "url": "https://coinmarketcap.com/ko/currencies/soon/"
+    },
+    {
+      "name": "EVAA Protocol",
+      "symbol": "EVAA",
+      "logo": "https://s2.coinmarketcap.com/static/img/coins/128x128/38376.png",
+      "url": "https://coinmarketcap.com/ko/currencies/evaa-protocol/"
+    }
+  ],
+  "marketWatch": {
+    "title": "2026년 10월 주요 거래소 신규 상장",
+    "note": "신규 토큰 발행 시점과는 다를 수 있습니다. 거래량은 수시로 변동되며 투자 권유나 협력 관계를 의미하지 않습니다.",
+    "items": [
+      {
+        "name": "Concrete",
+        "symbol": "CT",
+        "date": "10월 19일",
+        "event": "업비트·빗썸 상장",
+        "logo": "https://s2.coinmarketcap.com/static/img/coins/128x128/42253.png",
+        "url": "https://coinmarketcap.com/currencies/concrete/"
+      },
+      {
+        "name": "Metaplex",
+        "symbol": "MPLX",
+        "date": "10월 20일",
+        "event": "업비트 원화마켓 상장",
+        "logo": "https://s2.coinmarketcap.com/static/img/coins/128x128/21870.png",
+        "url": "https://coinmarketcap.com/currencies/metaplex/"
+      },
+      {
+        "name": "Axis Robotics",
+        "symbol": "AXIS",
+        "date": "10월 21일",
+        "event": "업비트 상장",
+        "logo": "https://s2.coinmarketcap.com/static/img/coins/128x128/42525.png",
+        "url": "https://coinmarketcap.com/currencies/axis-robotics/"
+      }
+    ]
+  },
+  "vcs": [
+    { "name": "Hack VC", "url": "https://www.hack.vc/", "domain": "hack.vc" },
+    { "name": "YZi Labs", "url": "https://www.yzilabs.com/", "domain": "yzilabs.com" },
+    { "name": "Multicoin Capital", "url": "https://multicoin.capital/", "domain": "multicoin.capital" },
+    { "name": "Dragonfly", "url": "https://dragonfly.com/", "domain": "dragonfly.com" },
+    { "name": "Coinbase Ventures", "url": "https://www.coinbase.com/ventures", "domain": "coinbase.com" }
+  ]
+}

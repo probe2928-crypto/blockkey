@@ -38,6 +38,80 @@
   // 현재 페이지 메뉴 표시
   $$(".nav a").forEach((a) => { if (a.pathname !== BK.base && location.pathname.startsWith(a.pathname) && !a.hash) a.setAttribute("aria-current", "page"); });
 
+  /* ---------- 첫 화면 장면 슬라이드 ---------- */
+  const hero = $("[data-hero]");
+  if (hero && $$(".slide", hero).length > 1) {
+    const slides = $$(".slide", hero), tabs = $$("[data-go]", hero);
+    let cur = 0, userPaused = false, busy = false;
+    const toneOf = (s) => (s.classList.contains("s-bk") ? "dark" : "light");
+    hero.dataset.tone = toneOf(slides[0]);
+    hero.style.setProperty("--dur", "7.5s");
+
+    function go(n) {
+      n = (n + slides.length) % slides.length;
+      if (n === cur || busy) return;
+      busy = true;
+      const prev = slides[cur], next = slides[n];
+      slides.forEach((s) => s.classList.remove("is-leave"));
+      prev.classList.remove("is-active", "is-enter");
+      prev.classList.add("is-leave");
+      prev.setAttribute("aria-hidden", "true");
+      next.removeAttribute("aria-hidden");
+      next.classList.add("is-active", "is-enter");
+      hero.dataset.tone = toneOf(next);
+      tabs.forEach((t, i) => (i === n ? t.setAttribute("aria-current", "true") : t.removeAttribute("aria-current")));
+      cur = n;
+      onShow(next);
+      setTimeout(() => { prev.classList.remove("is-leave"); busy = false; }, 1400);
+      setTimeout(() => next.classList.remove("is-enter"), 2600);
+    }
+    // 진행 막대가 다 차면 다음 장면 (멈춤·호버 중에는 막대도 멈춤)
+    tabs.forEach((t) => $(".tab-bar i", t).addEventListener("animationend", () => { if (t.getAttribute("aria-current") === "true") go(cur + 1); }));
+    tabs.forEach((t) => t.addEventListener("click", () => go(+t.dataset.go)));
+    $("[data-next]", hero)?.addEventListener("click", () => go(cur + 1));
+    $("[data-prev]", hero)?.addEventListener("click", () => go(cur - 1));
+    // 사용자가 멈춤을 눌렀거나 키보드로 컨트롤에 머물 때만 멈춤 (마우스를 올려도 계속 움직임)
+    const setPaused = () => hero.classList.toggle("is-paused", userPaused || !!hero.querySelector(":focus-visible"));
+    $("[data-pause]", hero)?.addEventListener("click", (e) => {
+      userPaused = !userPaused;
+      e.currentTarget.setAttribute("aria-label", userPaused ? "자동 넘김 재생" : "자동 넘김 멈춤");
+      setPaused();
+    });
+    hero.addEventListener("focusin", setPaused);
+    hero.addEventListener("focusout", () => setTimeout(setPaused));
+    document.addEventListener("visibilitychange", () => hero.classList.toggle("is-paused", document.hidden || userPaused));
+    hero.addEventListener("keydown", (e) => { if (e.key === "ArrowRight") go(cur + 1); if (e.key === "ArrowLeft") go(cur - 1); });
+    let sx = null;
+    hero.addEventListener("pointerdown", (e) => { if (e.pointerType !== "mouse") sx = e.clientX; });
+    hero.addEventListener("pointerup", (e) => { if (sx !== null) { const dx = e.clientX - sx; if (Math.abs(dx) > 50) go(cur + (dx < 0 ? 1 : -1)); sx = null; } });
+
+    // 장면별 움직임: 퍼프라인 숫자 카운트, 체인브리프 실시간 시세
+    function onShow(s) {
+      const num = $("[data-count]", s);
+      if (num) {
+        const to = +num.dataset.count, t0 = performance.now();
+        const step = (t) => { const p = Math.min(1, (t - t0 - 700) / 1400); num.textContent = Math.round(to * (p < 0 ? 0 : 1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(step); };
+        requestAnimationFrame(step);
+      }
+      if (s.classList.contains("s-cb")) cbLive();
+    }
+    let cbAt = 0;
+    async function cbLive() {
+      if (Date.now() - cbAt < 60000) return;
+      cbAt = Date.now();
+      try {
+        const [up, g] = await Promise.all([
+          getJSON("https://api.upbit.com/v1/ticker?markets=KRW-BTC"),
+          getJSON("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,tether&vs_currencies=usd,krw"),
+        ]);
+        const krw = up[0].trade_price, rate = g.tether.krw / g.tether.usd, kimp = (krw / (g.bitcoin.usd * rate) - 1) * 100;
+        $("[data-cb-btc]").textContent = "₩" + Math.round(krw).toLocaleString("ko-KR");
+        $("[data-cb-kimp]").textContent = (kimp > 0 ? "+" : "") + kimp.toFixed(2) + "%";
+      } catch { const el = $("[data-cb-live]"); if (el) el.hidden = true; }
+    }
+    cbLive();
+  }
+
   /* ---------- 시장 데이터 ---------- */
   const rowsEl = $("[data-mk-rows]");
   if (rowsEl) {

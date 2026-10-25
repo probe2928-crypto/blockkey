@@ -127,7 +127,7 @@ function layout({ title, description = SITE.description, path: p = "", body, bod
 <link rel="apple-touch-icon" href="${u("icons/apple-touch-icon.png")}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,300;1,400&family=Hahmlet:wght@200;300;400&family=Marcellus&family=Noto+Sans+KR:wght@300;400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400&family=Cormorant+Garamond:ital,wght@1,300;1,400&family=DM+Serif+Display:ital@0;1&family=Hahmlet:wght@200;300;400&family=Marcellus&family=Noto+Sans+KR:wght@300;400;500&display=swap">
 <link rel="stylesheet" href="${u("style.css")}?v=${BUILD_ID}">
 ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld)}</script>` : ""}
 ${ga ? `<script async src="https://www.googletagmanager.com/gtag/js?id=${esc(ga)}"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${esc(ga)}');</script>` : ""}
@@ -186,38 +186,106 @@ function footer() {
 }
 
 /* ---------- 광고 배너 ---------- */
+const adsFor = (place) => ADS.items.filter((a) => a.enabled && a.placements.includes(place));
+
+// 브랜드별 배너 카드: 체인브리프는 디도니 마스트헤드, 퍼프라인은 메종 광고 문법
+function adCard(a, size = "") {
+  const head = a.kind === "chainbrief"
+    ? `<span class="pc-mast" aria-hidden="true">${esc(a.brand)}</span><span class="pc-rule" aria-hidden="true"></span><span class="pc-tag">${esc(a.tagline || "")}</span>`
+    : a.kind === "perpline"
+      ? `<span class="pc-word" aria-hidden="true">${esc(a.brand)}</span><span class="pc-rule" aria-hidden="true"></span><span class="pc-head" lang="en" aria-hidden="true">${esc(a.headline[0])} <em>${esc(a.headline[1])}</em></span>`
+      : `<span class="pc-word">${esc(a.brand)}</span>`;
+  return `<a class="pc pc-${esc(a.kind)} ${size}" href="${esc(a.url)}" target="_blank" rel="sponsored noopener" aria-label="${esc(a.label)}: ${esc(a.brandKo || a.brand)} — ${esc(a.title)}">
+    <span class="pc-label">${esc(a.label)}</span>
+    <span class="pc-visual">${head}</span>
+    <span class="pc-copy">
+      <span class="pc-title">${esc(a.title)}</span>
+      <span class="pc-text">${esc(a.text)}</span>
+      <span class="pc-cta">${esc(a.cta)}</span>
+    </span>
+    ${a.words ? `<span class="pc-run" aria-hidden="true"><span>${[...a.words, ...a.words].map((w) => `<i>${esc(w)}</i>`).join("")}</span></span>` : ""}
+  </a>`;
+}
 function ad(place) {
-  return ADS.items.filter((a) => a.enabled && a.placements.includes(place)).map((a) => `<aside class="ad" aria-label="${esc(a.label)}: ${esc(a.brand)}">
+  const list = adsFor(place);
+  if (!list.length) return "";
+  const notes = list.filter((a) => a.note).map((a) => `<p class="ad-note">${esc(a.brand)}: ${esc(a.note)}</p>`).join("");
+  return `<aside class="partners partners-${list.length > 1 ? "duo" : "solo"}" aria-label="파트너 서비스 광고">
   <div class="wrap">
-    <a class="ad-in" href="${esc(a.url)}" target="_blank" rel="sponsored noopener">
-      <span class="ad-tag">${esc(a.label)}</span>
-      <span class="ad-brand">${esc(a.brand)}</span>
-      <span class="ad-body"><span class="ad-title">${esc(a.title)}</span><span class="ad-text">${esc(a.text)}</span></span>
-      <span class="ad-cta">${esc(a.cta)}</span>
-    </a>
-    ${a.note ? `<p class="ad-note">${esc(a.note)}</p>` : ""}
+    <p class="partners-h"><span lang="fr">Les maisons partenaires</span></p>
+    <div class="partners-grid">${list.map((a) => adCard(a, list.length > 1 ? "" : "pc-wide")).join("")}</div>
+    ${notes}
   </div>
-</aside>`).join("");
+</aside>`;
+}
+
+// 첫 화면 슬라이드: BLOCKKEY 오브제 → 파트너 광고. 옆으로 커튼처럼 넘어가고, 각 장면 안에서 천천히 움직인다
+function heroSlides(h) {
+  const partners = adsFor("hero");
+  const bk = `<article class="slide s-bk is-active" data-name="BLOCKKEY" aria-roledescription="slide" aria-label="1 / ${partners.length + 1}: BLOCKKEY">
+    <div class="slide-bg" aria-hidden="true"></div>
+    <div class="wrap slide-grid">
+      <div class="slide-copy">
+        <p class="sign">L'art de relier.</p>
+        <h1 id="hero-title">${esc(h.hero.title).replace("\n", "<br>")}</h1>
+        <p class="lead">${esc(h.hero.lead)}</p>
+        <div class="actions">
+          <a class="btn btn-light" href="#contact">${esc(h.hero.primary)}</a>
+          <a class="link-under" href="#services">${esc(h.hero.secondary)}</a>
+        </div>
+      </div>
+      <div class="slide-art hero-obj">${OBJECT}</div>
+    </div>
+  </article>`;
+  const slides = partners.map((a, i) => {
+    const n = `${i + 2} / ${partners.length + 1}`;
+    if (a.kind === "chainbrief") return `<article class="slide s-cb" data-name="${esc(a.brand)}" aria-roledescription="slide" aria-label="${n}: ${esc(a.label)} ${esc(a.brandKo)}" aria-hidden="true">
+      <div class="slide-bg" aria-hidden="true"></div>
+      <div class="wrap slide-center">
+        <p class="slide-ad">${esc(a.label)} · Partenaire</p>
+        <p class="cb-mast" aria-hidden="true">${esc(a.brand).split("").map((c, k) => `<span style="--k:${k}">${c}</span>`).join("")}</p>
+        <span class="cb-rule" aria-hidden="true"></span>
+        <h2 class="cb-tag">${esc(a.title)}</h2>
+        <p class="cb-live" data-cb-live aria-live="off"><span>비트코인 업비트</span><strong data-cb-btc>—</strong><span>김프</span><strong data-cb-kimp>—</strong></p>
+        <a class="btn btn-ink" href="${esc(a.url)}" target="_blank" rel="sponsored noopener">${esc(a.cta)}</a>
+      </div>
+      <div class="slide-run" aria-hidden="true"><span>${[...a.words, ...a.words, ...a.words].map((w) => `<i>${esc(w)}</i>`).join("")}</span></div>
+    </article>`;
+    if (a.kind === "perpline") return `<article class="slide s-pl" data-name="${esc(a.brand)}" aria-roledescription="slide" aria-label="${n}: ${esc(a.label)} ${esc(a.brand)}" aria-hidden="true">
+      <div class="slide-bg" aria-hidden="true"></div>
+      <div class="wrap slide-center">
+        <p class="slide-ad">${esc(a.label)} · Partenaire</p>
+        <p class="pl-word" aria-hidden="true">${esc(a.brand)}</p>
+        <span class="pl-rule" aria-hidden="true"></span>
+        <p class="pl-head" lang="en"><span>${esc(a.headline[0])}</span> <em>${esc(a.headline[1])}</em></p>
+        <h2 class="pl-ko">${esc(a.title)}</h2>
+        <p class="pl-stat"><span class="pl-num" data-count="50">50</span><span class="pl-pct">%</span><span class="pl-cap">최대 페이백<br>매주 USDT 지급</span></p>
+        <a class="btn btn-tone" href="${esc(a.url)}" target="_blank" rel="sponsored noopener">${esc(a.cta)}</a>
+        <p class="pl-note">${esc(a.note)}</p>
+      </div>
+      <div class="slide-run" aria-hidden="true"><span>${[...a.words, ...a.words].map((w) => `<i>${esc(w)}</i>`).join("")}</span></div>
+    </article>`;
+    return "";
+  }).join("");
+  const all = [{ name: "BLOCKKEY" }, ...partners.map((a) => ({ name: a.brand }))];
+  return `<section class="hero" aria-roledescription="carousel" aria-label="BLOCKKEY 소개와 파트너 서비스" data-hero>
+  <div class="slides">${bk}${slides}</div>
+  ${all.length > 1 ? `<div class="wrap slide-ui">
+    <ol class="slide-tabs">${all.map((s, i) => `<li><button type="button" data-go="${i}"${i === 0 ? ' aria-current="true"' : ""}><span class="tab-n">${String(i + 1).padStart(2, "0")}</span><span class="tab-name">${esc(s.name)}</span><span class="tab-bar"><i></i></span></button></li>`).join("")}</ol>
+    <div class="slide-nav">
+      <button type="button" data-prev aria-label="이전 장면"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button type="button" data-pause aria-label="자동 넘김 멈춤"><svg viewBox="0 0 24 24" aria-hidden="true" class="i-pause"><path d="M9 5v14M15 5v14"/></svg><svg viewBox="0 0 24 24" aria-hidden="true" class="i-play"><path d="M8 5l11 7-11 7z"/></svg></button>
+      <button type="button" data-next aria-label="다음 장면"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+  </div>` : ""}
+</section>`;
 }
 
 /* ---------- 홈 ---------- */
 function home() {
   const h = HOME;
 
-  const hero = `<section class="hero" aria-labelledby="hero-title">
-  <div class="wrap hero-grid">
-    <div class="hero-copy">
-      <p class="sign">L'art de relier.</p>
-      <h1 id="hero-title">${esc(h.hero.title).replace("\n", "<br>")}</h1>
-      <p class="lead">${esc(h.hero.lead)}</p>
-      <div class="actions">
-        <a class="btn btn-light" href="#contact">${esc(h.hero.primary)}</a>
-        <a class="link-under" href="#services">${esc(h.hero.secondary)}</a>
-      </div>
-    </div>
-    <div class="hero-obj">${OBJECT}</div>
-  </div>
-</section>`;
+  const hero = heroSlides(h);
 
   const statement = `<section class="statement" aria-label="BLOCKKEY 소개">
   <div class="wrap">
@@ -436,7 +504,7 @@ function markets() {
     <p class="fine">김프(김치 프리미엄) = 업비트 원화 가격 ÷ (글로벌 USD 가격 × 환율) − 1. 업비트 원화마켓에 없는 코인은 — 로 표시합니다.</p>
   </div>
 </section>
-${ad("markets")}
+${ad("markets-top")}
 <section class="sec sec-tight" aria-labelledby="mk-tvl">
   <div class="wrap">
     <h2 id="mk-tvl" class="h-sm">체인별 TVL 상위</h2>
@@ -444,6 +512,7 @@ ${ad("markets")}
     <ol class="tvl" data-tvl><li class="empty">TVL을 불러오는 중입니다.</li></ol>
   </div>
 </section>
+${ad("markets-bottom")}
 <section class="sec sec-tight" aria-labelledby="mk-ex">
   <div class="wrap">
     <h2 id="mk-ex" class="h-sm">직접 확인하기</h2>

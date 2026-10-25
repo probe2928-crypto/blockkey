@@ -15,11 +15,12 @@
 ## 사용자 조치 필요
 - 도메인 구입 후 연결 (README '도메인 연결')
 - 상담 폼을 메일로도 받고 싶으면 Web3Forms 키 (지금은 텔레그램 @btcbullit로 연결)
-- Perpline 배너 노출 여부 결정 (data/ads.json perpline.enabled) — Perpline 이용 조건상 한국 거주자 대상이 아님
 - 커뮤니티 채널(텔레그램/카톡) 링크 → site.config.json contact.community
 - 사업자 정보(상호·대표·사업자등록번호) → site.config.json footer
 
 ## 완료
+- 2026-10-26 세준 승인으로 Perpline 배너 노출 (이용 조건 문구 유지 필수). 첫 화면 장면 슬라이드(BLOCKKEY → 체인브리프 → Perpline), 파트너 카드 배치(홈·시장 데이터·인사이트)
+- 2026-10-26 생태계 섹션 컬러 로고, 상장일·거래소 배지
 - 2026-10-26 base44 → GitHub Pages 이전, 정적 빌드 구성
 - 2026-10-26 디자인 전면 개편 (유럽 하이엔드 톤, 실시간 블록 피드 제거, 알루미늄 키 오브제)
 - 2026-10-26 문의를 텔레그램 @btcbullit로, 체인브리프 광고 배너

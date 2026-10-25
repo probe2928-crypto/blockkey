@@ -187,6 +187,8 @@
     async function loadAll() {
       const res = await Promise.allSettled([loadCoins(), loadGlobal(), loadTvl(), loadFng()]);
       if (res[0].status === "rejected" && !data.length) drawTable();
+      // CoinGecko 무료 호출 제한(분당)에 걸리면 30초 뒤 한 번 더
+      if ((res[0].status === "rejected" || res[1].status === "rejected") && !loadAll.retried) { loadAll.retried = true; setTimeout(() => { loadAll.retried = false; loadAll(); }, 30000); }
       if (res[2].status === "rejected") { const t = $("[data-tvl]"); if (t && !t.querySelector(".bar")) t.innerHTML = `<li class="empty">${T.tvlFail}</li>`; }
       const u = $("[data-mk-updated]");
       if (u) u.textContent = new Date().toLocaleTimeString(LOC, { hour: "2-digit", minute: "2-digit", second: "2-digit" });

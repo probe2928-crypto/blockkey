@@ -219,10 +219,66 @@ function ad(place) {
 </aside>`;
 }
 
-// 첫 화면 슬라이드: BLOCKKEY 오브제 → 파트너 광고. 옆으로 커튼처럼 넘어가고, 각 장면 안에서 천천히 움직인다
+// 장면 비주얼: L'intelligence — 스피커 유닛처럼 퍼져 나가는 동심원(데이터의 파동)
+const ART_INTEL = `<svg class="art art-intel" viewBox="0 0 480 480" aria-hidden="true">
+  <defs>
+    <radialGradient id="ai-core" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#3c3d3f"/><stop offset=".7" stop-color="#141415"/><stop offset="1" stop-color="#050505"/></radialGradient>
+    <linearGradient id="ai-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ecdcb8"/><stop offset=".5" stop-color="#b8975c"/><stop offset="1" stop-color="#7d6234"/></linearGradient>
+    <linearGradient id="ai-alu" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0f0ee"/><stop offset=".5" stop-color="#a9aaac"/><stop offset="1" stop-color="#4c4d4f"/></linearGradient>
+  </defs>
+  <g class="ai-waves" fill="none" stroke="#c8c9cb">
+    <circle cx="240" cy="240" r="120"/><circle cx="240" cy="240" r="120"/><circle cx="240" cy="240" r="120"/><circle cx="240" cy="240" r="120"/>
+  </g>
+  <g class="ai-ticks" stroke="#8f9093" stroke-width="1">
+    ${Array.from({ length: 60 }, (_, i) => { const a = (i * 6 * Math.PI) / 180, r1 = 196, r2 = i % 5 ? 203 : 212; return `<line x1="${(240 + r1 * Math.cos(a)).toFixed(1)}" y1="${(240 + r1 * Math.sin(a)).toFixed(1)}" x2="${(240 + r2 * Math.cos(a)).toFixed(1)}" y2="${(240 + r2 * Math.sin(a)).toFixed(1)}"/>`; }).join("")}
+  </g>
+  <circle cx="240" cy="240" r="132" fill="url(#ai-alu)"/>
+  <circle cx="240" cy="240" r="120" fill="url(#ai-core)"/>
+  <circle cx="240" cy="240" r="92" fill="none" stroke="#fff" stroke-opacity=".07"/>
+  <circle cx="240" cy="240" r="62" fill="none" stroke="#fff" stroke-opacity=".09"/>
+  <circle class="ai-dot" cx="240" cy="240" r="26" fill="url(#ai-gold)"/>
+  <circle class="ai-orbit" cx="240" cy="44" r="4" fill="#cdb27f"/>
+</svg>`;
+
+// 장면 비주얼: La confiance — 브러시드 알루미늄 블록 세 개를 금선이 잇고, 빛이 선을 따라 흐름
+const cube = (x, y, s, cls = "") => `<g class="cube ${cls}" transform="translate(${x} ${y})">
+  <path d="M0 ${-s} L${s * .87} ${-s / 2} L0 0 L${-s * .87} ${-s / 2}Z" fill="url(#cf-top)"/>
+  <path d="M${-s * .87} ${-s / 2} L0 0 L0 ${s} L${-s * .87} ${s / 2}Z" fill="url(#cf-left)"/>
+  <path d="M${s * .87} ${-s / 2} L0 0 L0 ${s} L${s * .87} ${s / 2}Z" fill="url(#cf-right)"/>
+  <path d="M0 ${-s} L${s * .87} ${-s / 2} L0 0 L${-s * .87} ${-s / 2}Z" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width=".8"/>
+</g>`;
+const ART_TRUST = `<svg class="art art-trust" viewBox="0 0 520 440" aria-hidden="true">
+  <defs>
+    <linearGradient id="cf-top" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f4f2"/><stop offset="1" stop-color="#b9babc"/></linearGradient>
+    <linearGradient id="cf-left" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9c9da0"/><stop offset="1" stop-color="#55565a"/></linearGradient>
+    <linearGradient id="cf-right" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6e6f72"/><stop offset="1" stop-color="#2b2c2e"/></linearGradient>
+    <linearGradient id="cf-gold" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b8975c"/><stop offset="1" stop-color="#e6d3ad"/></linearGradient>
+    <filter id="cf-soft"><feGaussianBlur stdDeviation="14"/></filter>
+  </defs>
+  <ellipse cx="260" cy="400" rx="200" ry="14" fill="#000" opacity=".7" filter="url(#cf-soft)"/>
+  <path id="cf-line" d="M110 250 L260 170 L410 250" fill="none" stroke="url(#cf-gold)" stroke-width="1.2"/>
+  <path class="cf-flow" d="M110 250 L260 170 L410 250" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" pathLength="100"/>
+  ${cube(110, 270, 62, "c1")}${cube(260, 190, 74, "c2")}${cube(410, 270, 62, "c3")}
+  <circle cx="260" cy="190" r="7" fill="#cdb27f"/>
+</svg>`;
+
 function heroSlides(h) {
   const partners = adsFor("hero");
-  const bk = `<article class="slide s-bk is-active" data-name="BLOCKKEY" aria-roledescription="slide" aria-label="1 / ${partners.length + 1}: BLOCKKEY">
+  const scenes = h.hero.scenes || [];
+  const brandScene = (s, art) => `<article class="slide s-bk s-${esc(s.id)}" data-name="BLOCKKEY" aria-roledescription="slide" aria-hidden="true">
+    <div class="slide-bg" aria-hidden="true"></div>
+    <div class="wrap slide-grid">
+      <div class="slide-copy">
+        <p class="sign" lang="fr">${esc(s.fr)}</p>
+        <h2 class="scene-title">${esc(s.title).replace("\n", "<br>")}</h2>
+        <p class="lead">${esc(s.lead)}</p>
+        <ul class="scene-points">${s.points.map((p) => `<li>${esc(p)}</li>`).join("")}</ul>
+        <div class="actions"><a class="btn btn-light" href="${esc(s.href)}">${esc(s.cta)}</a></div>
+      </div>
+      <div class="slide-art">${art}</div>
+    </div>
+  </article>`;
+  const main = `<article class="slide s-bk s-main is-active" data-name="BLOCKKEY" aria-roledescription="slide">
     <div class="slide-bg" aria-hidden="true"></div>
     <div class="wrap slide-grid">
       <div class="slide-copy">
@@ -237,21 +293,20 @@ function heroSlides(h) {
       <div class="slide-art hero-obj">${OBJECT}</div>
     </div>
   </article>`;
-  const slides = partners.map((a, i) => {
-    const n = `${i + 2} / ${partners.length + 1}`;
-    if (a.kind === "chainbrief") return `<article class="slide s-cb" data-name="${esc(a.brand)}" aria-roledescription="slide" aria-label="${n}: ${esc(a.label)} ${esc(a.brandKo)}" aria-hidden="true">
+  const partnerScene = (a) => {
+    if (a.kind === "chainbrief") return `<article class="slide s-cb" data-name="${esc(a.brand)}" aria-roledescription="slide" aria-hidden="true">
       <div class="slide-bg" aria-hidden="true"></div>
       <div class="wrap slide-center">
         <p class="slide-ad">${esc(a.label)} · Partenaire</p>
         <p class="cb-mast" aria-hidden="true">${esc(a.brand).split("").map((c, k) => `<span style="--k:${k}">${c}</span>`).join("")}</p>
         <span class="cb-rule" aria-hidden="true"></span>
         <h2 class="cb-tag">${esc(a.title)}</h2>
-        <p class="cb-live" data-cb-live aria-live="off"><span>비트코인 업비트</span><strong data-cb-btc>—</strong><span>김프</span><strong data-cb-kimp>—</strong></p>
+        <p class="cb-live" data-cb-live><span>비트코인 업비트</span><strong data-cb-btc>—</strong><span>김프</span><strong data-cb-kimp>—</strong></p>
         <a class="btn btn-ink" href="${esc(a.url)}" target="_blank" rel="sponsored noopener">${esc(a.cta)}</a>
       </div>
       <div class="slide-run" aria-hidden="true"><span>${[...a.words, ...a.words, ...a.words].map((w) => `<i>${esc(w)}</i>`).join("")}</span></div>
     </article>`;
-    if (a.kind === "perpline") return `<article class="slide s-pl" data-name="${esc(a.brand)}" aria-roledescription="slide" aria-label="${n}: ${esc(a.label)} ${esc(a.brand)}" aria-hidden="true">
+    if (a.kind === "perpline") return `<article class="slide s-pl" data-name="${esc(a.brand)}" aria-roledescription="slide" aria-hidden="true">
       <div class="slide-bg" aria-hidden="true"></div>
       <div class="wrap slide-center">
         <p class="slide-ad">${esc(a.label)} · Partenaire</p>
@@ -266,12 +321,19 @@ function heroSlides(h) {
       <div class="slide-run" aria-hidden="true"><span>${[...a.words, ...a.words].map((w) => `<i>${esc(w)}</i>`).join("")}</span></div>
     </article>`;
     return "";
-  }).join("");
-  const all = [{ name: "BLOCKKEY" }, ...partners.map((a) => ({ name: a.brand }))];
+  };
+  // 순서: BLOCKKEY → 파트너 → BLOCKKEY → 파트너 → BLOCKKEY
+  const arts = { intelligence: ART_INTEL, confiance: ART_TRUST };
+  const own = [main, ...scenes.map((s) => brandScene(s, arts[s.id] || ""))];
+  const order = [];
+  own.forEach((o, i) => { order.push({ html: o, name: "BLOCKKEY" }); if (partners[i]) order.push({ html: partnerScene(partners[i]), name: partners[i].brand }); });
+  partners.slice(own.length).forEach((p) => order.push({ html: partnerScene(p), name: p.brand }));
+  const total = order.length;
+  const html = order.map((o, i) => o.html.replace('aria-roledescription="slide"', `aria-roledescription="slide" aria-label="${i + 1} / ${total}: ${esc(o.name)}"`)).join("");
   return `<section class="hero" aria-roledescription="carousel" aria-label="BLOCKKEY 소개와 파트너 서비스" data-hero>
-  <div class="slides">${bk}${slides}</div>
-  ${all.length > 1 ? `<div class="wrap slide-ui">
-    <ol class="slide-tabs">${all.map((s, i) => `<li><button type="button" data-go="${i}"${i === 0 ? ' aria-current="true"' : ""}><span class="tab-n">${String(i + 1).padStart(2, "0")}</span><span class="tab-name">${esc(s.name)}</span><span class="tab-bar"><i></i></span></button></li>`).join("")}</ol>
+  <div class="slides">${html}</div>
+  ${total > 1 ? `<div class="wrap slide-ui">
+    <ol class="slide-tabs">${order.map((s, i) => `<li><button type="button" data-go="${i}"${i === 0 ? ' aria-current="true"' : ""}><span class="tab-n">${String(i + 1).padStart(2, "0")}</span><span class="tab-name">${esc(s.name)}</span><span class="tab-bar"><i></i></span></button></li>`).join("")}</ol>
     <div class="slide-nav">
       <button type="button" data-prev aria-label="이전 장면"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
       <button type="button" data-pause aria-label="자동 넘김 멈춤"><svg viewBox="0 0 24 24" aria-hidden="true" class="i-pause"><path d="M9 5v14M15 5v14"/></svg><svg viewBox="0 0 24 24" aria-hidden="true" class="i-play"><path d="M8 5l11 7-11 7z"/></svg></button>

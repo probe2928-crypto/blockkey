@@ -26,8 +26,6 @@ jobs:
 
       - id: pages
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - name: 사이트 빌드
         run: npm run build

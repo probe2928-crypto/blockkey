@@ -1,0 +1,21 @@
+{
+  "note": "BLOCKKEY가 실제로 마케팅·개발·연동을 맡은 프로젝트만 넣는다. 진행 순서: chainbrief docs/PROJECT_PROMO.md",
+  "items": [
+    {
+      "slug": "miuro",
+      "name": "MIURO.AI",
+      "sector": "AI · 음악",
+      "sector_en": "AI · Music",
+      "summary": "자체 음악 파운데이션 모델 GM-1과 대화형 에이전트 Claw로 곡을 만들고, 발행하면 작품 식별·권리·정산이 붙는 AI 음악 플랫폼.",
+      "summary_en": "An AI music platform: its GM-1 model and Claw agent make the track, and every release carries an identity, rights and settlement.",
+      "role": "마케팅 · 미디어 홍보 (한국어·영어·중국어)",
+      "role_en": "Marketing & media (Korean, English, Chinese)",
+      "since": "2026.10",
+      "status": "진행 중",
+      "status_en": "Active",
+      "website": "https://miuro.ai",
+      "story": "https://probe2928-crypto.github.io/chainbrief/projects/miuro/",
+      "story_en": "https://probe2928-crypto.github.io/chainbrief/en/projects/miuro/"
+    }
+  ]
+}

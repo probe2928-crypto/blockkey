@@ -14,6 +14,7 @@ const SITE = json("site.config.json");
 const ECO = json("data/ecosystem.json");
 const MKT = json("data/markets.json");
 const ADS = json("data/ads.json");
+const PJ = json("data/projects.json");
 // 언어별 상태: 빌드 루프가 언어마다 바꿔 끼운다
 let LANG = "ko", L = I18N.ko, HOME = json("data/home.json"), insights = [];
 const tr = (o, k) => (LANG !== "ko" && o && o[`${k}_${LANG}`] != null ? o[`${k}_${LANG}`] : o?.[k]);
@@ -187,7 +188,7 @@ function footer() {
       </div>
       <nav aria-label="${L.footServices}"><h2>${L.footServices}</h2>${HOME.services.items.map((s) => `<a href="${u("")}#${s.id}">${esc(s.name)}</a>`).join("")}</nav>
       <nav aria-label="${L.footCompany}"><h2>${L.footCompany}</h2><a href="${u("")}#process">${L.footProcess}</a><a href="${u("")}#why">${L.footWhy}</a><a href="${u("")}#faq">${L.footFaq}</a></nav>
-      <nav aria-label="${L.footResources}"><h2>${L.footResources}</h2><a href="${u("markets/")}">${L.footMarkets}</a><a href="${u("insights/")}">${L.footInsights}</a><a href="${u("")}#contact">${L.footContact}</a></nav>
+      <nav aria-label="${L.footResources}"><h2>${L.footResources}</h2><a href="${u("projects/")}">${L.footProjects}</a><a href="${u("markets/")}">${L.footMarkets}</a><a href="${u("insights/")}">${L.footInsights}</a><a href="${u("")}#contact">${L.footContact}</a></nav>
     </div>
     <div class="foot-legal">
       ${biz.length ? `<p>${biz.join("<span aria-hidden=\"true\"> | </span>")}</p>` : ""}
@@ -600,6 +601,37 @@ ${ad("markets-bottom")}
   return layout({ title: L.mkPageTitle, description: L.mkPageDesc, path: "markets/", body, bodyClass: "markets" });
 }
 
+/* ---------- 관리 프로젝트 ---------- */
+function projects() {
+  const items = PJ.items || [];
+  const body = `<section class="page-hero">
+  <div class="wrap">
+    <p class="crumb"><a href="${u("")}">BLOCKKEY</a></p>
+    <h1>${L.pjTitle}</h1>
+    <p class="lead">${L.pjLead}</p>
+  </div>
+</section>
+<section class="sec sec-tight">
+  <div class="wrap">
+    <ul class="pj-list">
+      ${items.map((p, i) => `<li class="pj-row">
+        <div class="pj-vis"><img src="${ua(`projects/${p.slug}/cover-m.jpg`)}" alt="" loading="lazy" decoding="async"><img class="pj-lg" src="${ua(`projects/${p.slug}/logo.png`)}" alt="${esc(p.name)}" loading="lazy"></div>
+        <div class="pj-body">
+          <p class="pj-no">${String(i + 1).padStart(2, "0")} · ${esc(tr(p, "sector"))}</p>
+          <h2>${esc(p.name)}</h2>
+          <p class="pj-sum">${esc(tr(p, "summary"))}</p>
+          <dl class="pj-dl"><dt>${L.pjRole}</dt><dd>${esc(tr(p, "role"))}</dd><dt>${L.pjSince}</dt><dd>${esc(p.since)}</dd><dt>${L.pjStatus}</dt><dd><span class="pj-live"></span>${esc(tr(p, "status"))}</dd></dl>
+          <p class="pj-links">${p.website ? `<a class="btn-line" href="${esc(p.website)}" target="_blank" rel="noopener">${L.pjSite} →</a>` : ""}${tr(p, "story") ? `<a class="btn-line" href="${esc(tr(p, "story"))}" target="_blank" rel="noopener">${L.pjStory} →</a>` : ""}</p>
+        </div>
+      </li>`).join("")}
+    </ul>
+    <p class="fine">${L.pjNote}</p>
+  </div>
+</section>
+${ctaBand()}`;
+  return layout({ title: L.pjPageTitle, description: L.pjPageDesc, path: "projects/", body, bodyClass: "pjpage" });
+}
+
 /* ---------- 인사이트 ---------- */
 function insightList() {
   const body = `<section class="page-hero">
@@ -693,6 +725,7 @@ for (const lang of LANGS) {
   const P = prefix(lang);
   write(`${P}index.html`, home());
   write(`${P}markets/index.html`, markets());
+  write(`${P}projects/index.html`, projects());
   write(`${P}insights/index.html`, insightList());
   for (const p of insights) write(`${P}insights/${p.slug}/index.html`, insightPage(p));
   write(`${P}privacy/index.html`, legal("privacy"));

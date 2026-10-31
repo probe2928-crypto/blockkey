@@ -119,6 +119,7 @@ function layout({ title, description = L.description, path: p = "", body, bodyCl
 <html lang="${L.htmlLang}">
 <head>
 <meta charset="utf-8">
+<script>(function(){var h=location.hostname;if(h!=="probe2928-crypto.github.io")return;try{if(sessionStorage.getItem("q_play")==="1")return}catch(e){}var p=new URLSearchParams(location.search);if(p.get("src")==="twa"||document.referrer.indexOf("android-app://")===0)return;var s=document.createElement("script");s.async=true;s.src="https://www.googletagmanager.com/gtag/js?id=G-8YQ1BGBDR7";document.head.appendChild(s);window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};var D={ad_storage:"denied",ad_user_data:"denied",ad_personalization:"denied"};gtag("consent","default",Object.assign({analytics_storage:"denied",region:["AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR","HU","IS","IE","IT","LV","LI","LT","LU","MT","NL","NO","PL","PT","RO","SK","SI","ES","SE","GB","CH"]},D));gtag("consent","default",Object.assign({analytics_storage:"granted"},D));gtag("js",new Date());gtag("config","G-8YQ1BGBDR7",{allow_google_signals:false,allow_ad_personalization_signals:false})})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(fullTitle)}</title>
 <meta name="description" content="${esc(description)}">
